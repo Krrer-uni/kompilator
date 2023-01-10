@@ -1,4 +1,27 @@
 # Obserwacje
+
+### ETAPY KOMPILACJI
+1. Budowa struktury AST
+2. Indeksowanie zmiennych
+3. Indeksowanie Procedur
+4. (Obliczanie skoków)
+5. translacja na kod maszynowy
+
+
+### BLOKI
+
+Kompilator oparty na translacji na basic_blocks z użeciem AST
+
+```c++
+#define GENERIC_BLOCK = 1
+#define PROGRAM_BLOCK = 10
+#define 
+#define PROCEDURE_BLOCK = 2
+#define PROC_HEAD_BLOCK = 2
+#define VAR_BLOCK = 2
+
+```
+
 ### Zmienne
 Zmienne trzymane w mapie 
 
@@ -14,11 +37,8 @@ enum var_type{
     indirect,
 }
 ```
-
-Gdy wchodzimy głębiej w blok np. przez procedurę. Zwiększamy globalny scope_lvl. Po wyjściu z procedury zmniejszamy go i usuwamy z listy wszystkie zmienne z poprzedniego poziomu. 
 Przy tworzeniu zmiennej jej nazwa to będzie _identifier(ProcedureName)_
-Procedure name jest opcjonalne. Sprawdzany będzie 
-
+W bloku PROGRAM i PROCEDURE trzymany będzie słownik
 ###
 ### Procedury
 Każda procedura ma rejestr powrotu (do przemyślenia)
