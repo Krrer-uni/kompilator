@@ -17,6 +17,7 @@
 #include <vector>
 #include <string>
 #include <map>
+#include <memory>
 #include "variables.h"
 class GENERIC_BLOCK {
  protected:
@@ -34,25 +35,24 @@ class EXPRESSION_BLOCK : public GENERIC_BLOCK {
 
 class VALUE_BLOCK : public EXPRESSION_BLOCK {
  public:
-  virtual std::string load_value() = 0;
   virtual std::string get_content() = 0;
 };
 
 class NUM_BLOCK : public VALUE_BLOCK {
  public:
   explicit NUM_BLOCK(literal value);
-  std::string get_content() const;
-  std::string load_value() override;
+  std::string get_content() override;
+  std::vector<std::string> translate_block() override;
  private:
   literal _number_literal;
 
 };
 
-class VARIABLE_BLOCK : public VALUE_BLOCK {
+class VAR_BLOCK : public VALUE_BLOCK {
  public:
-  VARIABLE_BLOCK(std::string name, variable_type variable_type);
-  std::string load_value() override;
+  VAR_BLOCK(std::string name, variable_type variable_type);
   std::string get_content() override;
+  std::vector<std::string> translate_block() override;
  private:
   std::string _var_name;
   uint64_t _memory_block{};
@@ -74,17 +74,19 @@ class ADDITION_BLOCK : public EXPRESSION_BLOCK {
 class COMMAND_BLOCK : public GENERIC_BLOCK {
 };
 
+
+
 class ASSIGN_BLOCK : public COMMAND_BLOCK {
  public:
-  ASSIGN_BLOCK(VARIABLE_BLOCK *lhs, EXPRESSION_BLOCK *rhs);
+  ASSIGN_BLOCK(std::shared_ptr<VAR_BLOCK> lhs, std::shared_ptr<EXPRESSION_BLOCK> rhs);
   std::vector<std::string> translate_block() override;
  private:
-  VARIABLE_BLOCK *_lhs;
-  EXPRESSION_BLOCK *_rhs;
+  std::shared_ptr<VAR_BLOCK> _lhs;
+  std::shared_ptr<EXPRESSION_BLOCK> _rhs;
 };
 
 class VARIABLE_DECLARATION_BLOCK : public GENERIC_BLOCK {
-  std::vector<VARIABLE_BLOCK *> _vars;
+  std::vector<VAR_BLOCK *> _vars;
 };
 
 class COMMANDS_BLOCK : public GENERIC_BLOCK {

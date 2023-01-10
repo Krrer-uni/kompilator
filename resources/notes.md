@@ -10,7 +10,7 @@
 
 ### BLOKI
 
-Kompilator oparty na translacji na basic_blocks z użeciem AST
+Compiler oparty na translacji na basic_blocks z użeciem AST
 
 ```c++
 #define GENERIC_BLOCK = 1

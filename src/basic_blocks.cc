@@ -15,11 +15,13 @@ std::vector<std::string> ADDITION_BLOCK::translate_block() {
       if(_rhs->get_type() == NUM_BLOCK_TYPE){
 
       } else{ // rhs is not literal
-        code.push_back(_lhs->load_value());
+        auto to_insert = _lhs->translate_block();
+        code.insert(code.end(),to_insert.begin(),to_insert.end());
         code.push_back("ADD " + _rhs->get_content());
       }
   } else{ // lhs is not literal
-    code.push_back(_rhs->load_value());
+    auto to_insert = _rhs->translate_block();
+    code.insert(code.end(),to_insert.begin(),to_insert.end());
     code.push_back("ADD " + _lhs->get_content());
   }
   return code;
@@ -33,25 +35,29 @@ NUM_BLOCK::NUM_BLOCK(unsigned long long int value) :
     _number_literal(value) {
   _type = NUM_BLOCK_TYPE;
 }
-std::string NUM_BLOCK::get_content() const {
+std::string NUM_BLOCK::get_content() {
   return std::to_string(_number_literal);
 }
-std::string NUM_BLOCK::load_value() {
-  return "SET " + std::to_string(_number_literal);
+std::vector<std::string> NUM_BLOCK::translate_block() {
+  std::vector<std::string> code;
+  code.push_back("SET " + std::to_string(_number_literal));
+  return code;
 }
 
 
 
-VARIABLE_BLOCK::VARIABLE_BLOCK(std::string name, variable_type variable_type):
+VAR_BLOCK::VAR_BLOCK(std::string name, variable_type variable_type):
   _var_name(name), _var_type(variable_type){
   _type = VARIABLE_BLOCK_TYPE;
 }
-std::string VARIABLE_BLOCK::load_value() {
-  return "LOAD @" + _var_name;
+std::vector<std::string> VAR_BLOCK::translate_block() {
+  std::vector<std::string> code;
+  code.push_back("LOAD @" + _var_name);
+  return code;
 }
 
 //TODO change name to index
-std::string VARIABLE_BLOCK::get_content() {
+std::string VAR_BLOCK::get_content() {
   return "@"+ std::string(_var_name);
 }
 
@@ -63,8 +69,8 @@ std::vector<std::string> ASSIGN_BLOCK::translate_block() {
   code.push_back("STORE " + _lhs->get_content());
   return code;
 }
-ASSIGN_BLOCK::ASSIGN_BLOCK(VARIABLE_BLOCK *lhs, EXPRESSION_BLOCK *rhs)
-    : _rhs(rhs), _lhs(lhs) {
+ASSIGN_BLOCK::ASSIGN_BLOCK(std::shared_ptr<VAR_BLOCK> lhs, std::shared_ptr<EXPRESSION_BLOCK> rhs)
+    : _rhs(std::move(rhs)), _lhs(std::move(lhs)) {
   _type = ASSIGN_BLOCK_TYPE;
 }
 

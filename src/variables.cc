@@ -3,3 +3,8 @@
 //
 
 #include "variables.h"
+
+variable::variable() {}
+variable_type variable::get_type() {
+  return type;
+}

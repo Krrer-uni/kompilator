@@ -1,6 +1,9 @@
 
 %code requires{
 #include <string>
+#include "../basic_blocks.h"
+
+
 }
 
 %code top {
@@ -11,7 +14,9 @@
   #include <string.h> /* strcmp. */
   #include <iostream>
   #include <numeric>
-  #include <basic_blocks.h>
+  #include <map>
+  #include "../compiler.h"
+  #include "../handler.h"
   #define YYDEBUG 1
   int yylex (void);
   void yyerror (char const *);
@@ -20,18 +25,21 @@
   std::string output;
   const unsigned int gf_base = 1234577;
   bool error_flag = false;
+  int compiler_debug_mode = 1;
+  auto compiler = new Compiler(compiler_debug_mode);
 }
 
 
 /* Generate YYSTYPE from the types used in %token and %type.  */
-%define api.value.type union
+
 %union {
    uint64_t num;
    std::string* identifier;
+   VALUE_BLOCK* value_type;
 }
 
-%token <uint64_t> num
-%token <std::string*> identifier
+%token <num> num
+%token <identifier> identifier
 %token PROCEDURE
 %token IS
 %token VAR
@@ -66,10 +74,13 @@
 %token MULT
 %token DIV
 %token MOD
+
+%type <value_type> value
+
  %verbose
  %define parse.error detailed
  %define parse.trace
-// %printer { fprintf (yyo, "%d", $$); } <long int>;
+
 
 %% /* The grammar follows.  */
 
@@ -102,8 +113,8 @@ command: identifier ASSIGN expression SEMICOL { std::cout << "assign" << std::en
 proc_head: identifier LPAREN proc_declarations RPAREN { std::cout << "proc head" << std::endl; }
 ;
 
-declarations: declarations COMMA identifier { std::cout << "Declaration" << std::endl; }
-| identifier { std::cout << "Declaration" << std::endl; }
+declarations: declarations COMMA identifier { compiler->handle_declaration(*$3, value_var); }
+| identifier {compiler->handle_declaration(*$1, value_var); }
 ;
 
 proc_declarations: proc_declarations COMMA identifier { std::cout << "PROC_Declaration \n";}
@@ -125,8 +136,8 @@ condition: value EQUAL value { std::cout << "EQUAL" << std::endl; }
 | value GREATEREQUAL value { std::cout << "GREATEREQUAL" << std::endl; }
 | value LESSEQUAL value { std::cout << "LESSEQUAL" << std::endl; }
 
-value: num { std::cout << "Numberr \n"; $$ = new }
-| identifier { std::cout << "Identifier \n";}
+value: num {compiler->handle_literal($1);}
+| identifier {compiler->handle_variable(*$1);}
 ;
 
 %%
