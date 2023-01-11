@@ -67,6 +67,15 @@ std::vector<std::string> VAR_BLOCK::translate_block() {
   code.push_back("LOAD @" + _var_name);
   return code;
 }
+std::string VAR_BLOCK::get_memory_adress() {
+  std::string msg;
+  if(_var_type == value_var){
+    msg = " " + std::to_string(_memory_block);
+  }else{
+    msg = "I " + std::to_string(_memory_block);
+  }
+  return msg;
+}
 
 ASSIGN_BLOCK::ASSIGN_BLOCK(VAR_BLOCK *lhs, EXPRESSION_BLOCK *rhs)
     : _rhs(rhs), _lhs(lhs) {
@@ -82,7 +91,7 @@ WRITE_BLOCK::WRITE_BLOCK(VALUE_BLOCK *output) {
 std::vector<std::string> WRITE_BLOCK::translate_block() {
   std::vector<std::string> code;
   if (_output->_value_type == VALUE_BLOCK::var) {
-    code.emplace_back("PUT " + std::to_string(_output->_var_block->_memory_block) + "  [ @"
+    code.emplace_back("PUT" + _output->_var_block->get_memory_adress() + "  [ @"
                           + _output->_var_block->_var_name + " ]");
   } else {
     code.push_back("SET " + std::to_string(_output->_num_block->_number_literal));
@@ -151,4 +160,16 @@ std::vector<std::string> READ_BLOCK::translate_block() {
     code.emplace_back("GET " + std::to_string(_input->_var_block->_memory_block) + "  [ @"
                           + _input->_var_block->_var_name + " ]");
   return code;
+}
+EXPRESSION_BLOCK::EXPRESSION_BLOCK(EXPRESSION_BLOCK::expression_type type,
+                                   VALUE_BLOCK *lhs,
+                                   VALUE_BLOCK *rhs) :
+                                   _type(type), _lhs(lhs), _rhs(rhs){
+
+}
+std::vector<std::string> EXPRESSION_BLOCK::translate_block() {
+  switch (_type) {
+    case add:
+
+  }
 }

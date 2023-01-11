@@ -31,14 +31,9 @@ class GENERIC_BLOCK {
 };
 
 /**
- * EXPRESSIONS
+ * VALUE
  */
-class EXPRESSION_BLOCK : public GENERIC_BLOCK {
-};
-
-
-
-class NUM_BLOCK{
+class NUM_BLOCK {
  public:
   explicit NUM_BLOCK(literal value);
   std::vector<std::string> translate_block();
@@ -47,24 +42,40 @@ class NUM_BLOCK{
 
 };
 
-class VAR_BLOCK{
+class VAR_BLOCK {
  public:
   VAR_BLOCK(std::string name, variable_type variable_type, unsigned int memory_index);
   std::vector<std::string> translate_block();
+  std::string get_memory_adress();
   std::string _var_name;
   uint64_t _memory_block{};
   variable_type _var_type;
 };
 
-class VALUE_BLOCK{
+class VALUE_BLOCK {
  public:
-  enum value_type{var, number};
+  enum value_type { var, number };
   VALUE_BLOCK(value_type value_type);
   std::vector<std::string> translate_block();
   value_type _value_type;
-  VAR_BLOCK* _var_block;
-  NUM_BLOCK* _num_block;
+  VAR_BLOCK *_var_block;
+  NUM_BLOCK *_num_block;
 };
+
+/**
+ * EXPRESSIONS
+ */
+class EXPRESSION_BLOCK : public GENERIC_BLOCK {
+ public:
+  enum expression_type { value, add, sub, mul, diw, mod };
+  EXPRESSION_BLOCK(expression_type type, VALUE_BLOCK* lhs, VALUE_BLOCK* rhs);
+  std::vector<std::string> translate_block() override;
+  expression_type _type;
+  VALUE_BLOCK* _lhs;
+  VALUE_BLOCK* _rhs;
+};
+
+
 
 //class ADDITION_BLOCK : public EXPRESSION_BLOCK {
 // public:
@@ -80,42 +91,41 @@ class VALUE_BLOCK{
  */
 
 
-class WRITE_BLOCK{
+class WRITE_BLOCK {
  public:
-  explicit WRITE_BLOCK(VALUE_BLOCK* output);
+  explicit WRITE_BLOCK(VALUE_BLOCK *output);
   std::vector<std::string> translate_block();
  private:
-  VALUE_BLOCK* _output;
+  VALUE_BLOCK *_output;
 };
 
-class READ_BLOCK{
+class READ_BLOCK {
  public:
-  explicit READ_BLOCK(VALUE_BLOCK* input);
+  explicit READ_BLOCK(VALUE_BLOCK *input);
   std::vector<std::string> translate_block();
  private:
-  VALUE_BLOCK* _input;
+  VALUE_BLOCK *_input;
 };
 
-class ASSIGN_BLOCK{
+class ASSIGN_BLOCK {
  public:
-  ASSIGN_BLOCK(VAR_BLOCK* lhs, EXPRESSION_BLOCK* rhs);
+  ASSIGN_BLOCK(VAR_BLOCK *lhs, EXPRESSION_BLOCK *rhs);
   std::vector<std::string> translate_block();
  private:
-  VAR_BLOCK* _lhs;
-  EXPRESSION_BLOCK* _rhs;
+  VAR_BLOCK *_lhs;
+  EXPRESSION_BLOCK *_rhs;
 };
 
-class COMMAND_BLOCK{
+class COMMAND_BLOCK {
  public:
-  enum command_type{write,assign,read,iff,iffels,whilee,proc};
+  enum command_type { write, assign, read, iff, iffels, whilee, proc };
   COMMAND_BLOCK(command_type command_type);
   std::vector<std::string> translate_block();
   command_type _commnad_type;
-  WRITE_BLOCK* _write_block;
-  ASSIGN_BLOCK* _assign_block;
-  READ_BLOCK* _read_block;
+  WRITE_BLOCK *_write_block;
+  ASSIGN_BLOCK *_assign_block;
+  READ_BLOCK *_read_block;
 };
-
 
 class VARIABLE_DECLARATION_BLOCK : public GENERIC_BLOCK {
   std::vector<VAR_BLOCK *> _vars;
@@ -125,9 +135,9 @@ class COMMANDS_BLOCK : public GENERIC_BLOCK {
  public:
   COMMANDS_BLOCK();
   std::vector<std::string> translate_block() override;
-  void add_command(COMMAND_BLOCK* block);
+  void add_command(COMMAND_BLOCK *block);
  private:
-  std::vector<COMMAND_BLOCK*> _commands;
+  std::vector<COMMAND_BLOCK *> _commands;
 };
 
 class MAIN_BLOCK : GENERIC_BLOCK {
