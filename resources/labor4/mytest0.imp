@@ -1,5 +1,8 @@
 PROGRAM IS
 VAR x, y, z
 BEGIN
+WRITE 10;
+READ x;
 WRITE x;
+WRITE y;
 END

@@ -6,12 +6,15 @@
 #define KOMPILATOR_SRC_BASIC_BLOCKS_H_
 #define literal unsigned long long
 
-#define PROGRAM_BLOCK_TYPE 10
+#define MAIN_BLOCK_TYPE 10
 
-#define NUM_BLOCK_TYPE 40
-#define VARIABLE_BLOCK_TYPE 41
+#define VALUE_BLOCK_TYPE 40
+#define NUM_BLOCK_TYPE 41
+#define VARIABLE_BLOCK_TYPE 42
 
-#define ADDITION_BLOCK_TYPE 50
+#define COMMANDS_BLOCK_TYPE 50
+#define WRITE_BLOCK_TYPE 51
+#define ADDITION_BLOCK_TYPE 52
 
 #define ASSIGN_BLOCK_TYPE 50
 #include <vector>
@@ -33,73 +36,106 @@ class GENERIC_BLOCK {
 class EXPRESSION_BLOCK : public GENERIC_BLOCK {
 };
 
-class VALUE_BLOCK : public EXPRESSION_BLOCK {
- public:
-  virtual std::string get_content() = 0;
-};
 
-class NUM_BLOCK : public VALUE_BLOCK {
+
+class NUM_BLOCK{
  public:
   explicit NUM_BLOCK(literal value);
-  std::string get_content() override;
-  std::vector<std::string> translate_block() override;
- private:
+  std::vector<std::string> translate_block();
   literal _number_literal;
+ private:
 
 };
 
-class VAR_BLOCK : public VALUE_BLOCK {
+class VAR_BLOCK{
  public:
-  VAR_BLOCK(std::string name, variable_type variable_type);
-  std::string get_content() override;
-  std::vector<std::string> translate_block() override;
- private:
+  VAR_BLOCK(std::string name, variable_type variable_type, unsigned int memory_index);
+  std::vector<std::string> translate_block();
   std::string _var_name;
   uint64_t _memory_block{};
   variable_type _var_type;
 };
 
-class ADDITION_BLOCK : public EXPRESSION_BLOCK {
+class VALUE_BLOCK{
  public:
-  ADDITION_BLOCK(VALUE_BLOCK *lhs, VALUE_BLOCK *rhs);
-  std::vector<std::string> translate_block() override;
- private:
-  VALUE_BLOCK *_lhs;
-  VALUE_BLOCK *_rhs;
+  enum value_type{var, number};
+  VALUE_BLOCK(value_type value_type);
+  std::vector<std::string> translate_block();
+  value_type _value_type;
+  VAR_BLOCK* _var_block;
+  NUM_BLOCK* _num_block;
 };
+
+//class ADDITION_BLOCK : public EXPRESSION_BLOCK {
+// public:
+//  ADDITION_BLOCK(VALUE_BLOCK *lhs, VALUE_BLOCK *rhs);
+//  std::vector<std::string> translate_block() override;
+// private:
+//  VALUE_BLOCK *_lhs;
+//  VALUE_BLOCK *_rhs;
+//};
 
 /**
  * COMMANDS
  */
-class COMMAND_BLOCK : public GENERIC_BLOCK {
-};
 
 
-
-class ASSIGN_BLOCK : public COMMAND_BLOCK {
+class WRITE_BLOCK{
  public:
-  ASSIGN_BLOCK(std::shared_ptr<VAR_BLOCK> lhs, std::shared_ptr<EXPRESSION_BLOCK> rhs);
-  std::vector<std::string> translate_block() override;
+  explicit WRITE_BLOCK(VALUE_BLOCK* output);
+  std::vector<std::string> translate_block();
  private:
-  std::shared_ptr<VAR_BLOCK> _lhs;
-  std::shared_ptr<EXPRESSION_BLOCK> _rhs;
+  VALUE_BLOCK* _output;
 };
+
+class READ_BLOCK{
+ public:
+  explicit READ_BLOCK(VALUE_BLOCK* input);
+  std::vector<std::string> translate_block();
+ private:
+  VALUE_BLOCK* _input;
+};
+
+class ASSIGN_BLOCK{
+ public:
+  ASSIGN_BLOCK(VAR_BLOCK* lhs, EXPRESSION_BLOCK* rhs);
+  std::vector<std::string> translate_block();
+ private:
+  VAR_BLOCK* _lhs;
+  EXPRESSION_BLOCK* _rhs;
+};
+
+class COMMAND_BLOCK{
+ public:
+  enum command_type{write,assign,read,iff,iffels,whilee,proc};
+  COMMAND_BLOCK(command_type command_type);
+  std::vector<std::string> translate_block();
+  command_type _commnad_type;
+  WRITE_BLOCK* _write_block;
+  ASSIGN_BLOCK* _assign_block;
+  READ_BLOCK* _read_block;
+};
+
 
 class VARIABLE_DECLARATION_BLOCK : public GENERIC_BLOCK {
   std::vector<VAR_BLOCK *> _vars;
 };
 
 class COMMANDS_BLOCK : public GENERIC_BLOCK {
-  std::vector<COMMAND_BLOCK *> _commands;
+ public:
+  COMMANDS_BLOCK();
+  std::vector<std::string> translate_block() override;
+  void add_command(COMMAND_BLOCK* block);
+ private:
+  std::vector<COMMAND_BLOCK*> _commands;
 };
 
-class PROGRAM_BLOCK : GENERIC_BLOCK {
+class MAIN_BLOCK : GENERIC_BLOCK {
  public:
-  PROGRAM_BLOCK(VARIABLE_DECLARATION_BLOCK *declaration_block, COMMANDS_BLOCK *_commands_block);
+  MAIN_BLOCK(COMMANDS_BLOCK *commands_block);
+  std::vector<std::string> translate_block() override;
  private:
-  VARIABLE_DECLARATION_BLOCK *_declaration_block;
   COMMANDS_BLOCK *_commands_block;
-  std::map<std::string, variable> _variable_list;
 };
 
 #endif //KOMPILATOR_SRC_BASIC_BLOCKS_H_

@@ -14,7 +14,7 @@ Compiler oparty na translacji na basic_blocks z użeciem AST
 
 ```c++
 #define GENERIC_BLOCK = 1
-#define PROGRAM_BLOCK = 10
+#define MAIN_BLOCK = 10
 #define 
 #define PROCEDURE_BLOCK = 2
 #define PROC_HEAD_BLOCK = 2

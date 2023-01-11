@@ -15,6 +15,7 @@
   #include <iostream>
   #include <numeric>
   #include <map>
+  #include <memory>
   #include "../compiler.h"
   #include "../handler.h"
   #define YYDEBUG 1
@@ -36,6 +37,10 @@
    uint64_t num;
    std::string* identifier;
    VALUE_BLOCK* value_type;
+   COMMAND_BLOCK* command_type;
+   COMMANDS_BLOCK* commands_type;
+   MAIN_BLOCK* main_type;
+
 }
 
 %token <num> num
@@ -76,7 +81,9 @@
 %token MOD
 
 %type <value_type> value
-
+%type <command_type> command
+%type <commands_type> commands
+%type <main_type> main
  %verbose
  %define parse.error detailed
  %define parse.trace
@@ -84,7 +91,7 @@
 
 %% /* The grammar follows.  */
 
-program_all: procedures main { std::cout << "program\n";}
+program_all: procedures main { compiler->handle_program();}
 ;
 
 procedures: procedures PROCEDURE proc_head IS VAR declarations BEGIN_ commands END { std::cout << "PROC \n";}
@@ -92,12 +99,12 @@ procedures: procedures PROCEDURE proc_head IS VAR declarations BEGIN_ commands E
 |
 ;
 
-main: PROGRAM IS VAR declarations BEGIN_ commands END { std::cout << "MAIN" ; }
-| PROGRAM IS BEGIN_ commands END { std::cout << "MAIN NO VAR" << std::endl; }
+main: PROGRAM IS VAR declarations BEGIN_ commands END { compiler->handle_main($6);}
+| PROGRAM IS BEGIN_ commands END { compiler->handle_main($4); }
 ;
 
-commands: commands command { std::cout << "command" << std::endl; }
-| command { std::cout << "command" << std::endl; }
+commands: commands command { $$ = compiler->handle_command($1, $2); }
+| command { $$ = compiler->handle_command(nullptr, $1);}
 ;
 
 command: identifier ASSIGN expression SEMICOL { std::cout << "assign" << std::endl; }
@@ -106,8 +113,8 @@ command: identifier ASSIGN expression SEMICOL { std::cout << "assign" << std::en
 | WHILE condition DO commands ENDWHILE { std::cout << "WHILE" << std::endl; }
 | REPEAT commands UNTIL condition SEMICOL { std::cout << "REPEAT" << std::endl; }
 | proc_head SEMICOL { std::cout << "procedure" << std::endl; }
-| READ identifier SEMICOL { std::cout << "READ" << std::endl; }
-| WRITE value SEMICOL { std::cout << "WRITE" << std::endl; }
+| READ identifier SEMICOL { $$ =compiler->handle_read(*$2);}
+| WRITE value SEMICOL {$$ =compiler->handle_write($2);}
 ;
 
 proc_head: identifier LPAREN proc_declarations RPAREN { std::cout << "proc head" << std::endl; }
@@ -136,8 +143,8 @@ condition: value EQUAL value { std::cout << "EQUAL" << std::endl; }
 | value GREATEREQUAL value { std::cout << "GREATEREQUAL" << std::endl; }
 | value LESSEQUAL value { std::cout << "LESSEQUAL" << std::endl; }
 
-value: num {compiler->handle_literal($1);}
-| identifier {compiler->handle_variable(*$1);}
+value: num {$$ = compiler->handle_literal($1);}
+| identifier {$$ = compiler->handle_variable(*$1);}
 ;
 
 %%
