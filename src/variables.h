@@ -7,7 +7,7 @@
 #include <string>
 #include <utility>
 
-enum variable_type { value_var, pointer_var };
+enum variable_type { value_var, pointer_var, const_var };
 class variable {
  public:
   variable();

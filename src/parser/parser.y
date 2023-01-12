@@ -1,7 +1,7 @@
 
 %code requires{
 #include <string>
-#include "../basic_blocks.h"
+#include "../basic_blocks/basic_blocks.h"
 
 
 }
@@ -17,7 +17,6 @@
   #include <map>
   #include <memory>
   #include "../compiler.h"
-  #include "../handler.h"
   #define YYDEBUG 1
   int yylex (void);
   void yyerror (char const *);
@@ -40,7 +39,7 @@
    COMMAND_BLOCK* command_type;
    COMMANDS_BLOCK* commands_type;
    MAIN_BLOCK* main_type;
-
+	EXPRESSION_BLOCK* expression_type;
 }
 
 %token <num> num
@@ -84,6 +83,7 @@
 %type <command_type> command
 %type <commands_type> commands
 %type <main_type> main
+%type <expression_type> expression
  %verbose
  %define parse.error detailed
  %define parse.trace
@@ -107,7 +107,7 @@ commands: commands command { $$ = compiler->handle_command($1, $2); }
 | command { $$ = compiler->handle_command(nullptr, $1);}
 ;
 
-command: identifier ASSIGN expression SEMICOL { std::cout << "assign" << std::endl; }
+command: identifier ASSIGN expression SEMICOL { $$ = compiler->handle_assign(*$1,$3);}
 | IF condition THEN commands ELSE commands ENDIF { std::cout << "IF ELSE" << std::endl; }
 | IF condition THEN commands ENDIF { std::cout << "IF" << std::endl; }
 | WHILE condition DO commands ENDWHILE { std::cout << "WHILE" << std::endl; }
@@ -129,12 +129,12 @@ proc_declarations: proc_declarations COMMA identifier { std::cout << "PROC_Decla
 ;
 
 
-expression: value { std::cout << "VAL" << std::endl; }
-| value PLUS value { std::cout << "plus" << std::endl; }
-| value MINUS value { std::cout << "minus" << std::endl; }
-| value MULT value { std::cout << "mult" << std::endl; }
-| value DIV value { std::cout << "div" << std::endl; }
-| value MOD value { std::cout << "mod" << std::endl; }
+expression: value { $$ = compiler->handle_expression( basic_blocks_types::EXP_VAL, $1, nullptr);}
+| value PLUS value { $$ = compiler->handle_expression( basic_blocks_types::EXP_ADD, $1, $3); }
+| value MINUS value {$$ = compiler->handle_expression( basic_blocks_types::EXP_SUB, $1, $3); }
+| value MULT value { $$ = compiler->handle_expression( basic_blocks_types::EXP_MUL, $1, $3); }
+| value DIV value { $$ = compiler->handle_expression( basic_blocks_types::EXP_DIV, $1, $3); }
+| value MOD value { $$ = compiler->handle_expression( basic_blocks_types::EXP_MOD, $1, $3); }
 
 condition: value EQUAL value { std::cout << "EQUAL" << std::endl; }
 | value NOTEQUAL value { std::cout << "NOTEQUAL" << std::endl; }

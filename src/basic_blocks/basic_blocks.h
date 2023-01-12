@@ -8,20 +8,22 @@
 
 #define MAIN_BLOCK_TYPE 10
 
-#define VALUE_BLOCK_TYPE 40
-#define NUM_BLOCK_TYPE 41
-#define VARIABLE_BLOCK_TYPE 42
-
 #define COMMANDS_BLOCK_TYPE 50
-#define WRITE_BLOCK_TYPE 51
-#define ADDITION_BLOCK_TYPE 52
 
-#define ASSIGN_BLOCK_TYPE 50
 #include <vector>
 #include <string>
 #include <map>
 #include <memory>
-#include "variables.h"
+#include "../variables.h"
+
+class Compiler;
+
+namespace basic_blocks_types {
+enum expression_type { EXP_VAL, EXP_ADD, EXP_SUB, EXP_MUL, EXP_DIV, EXP_MOD };
+enum command_type { CMD_WRITE, CMD_ASIGN, CMD_READ, CMD_IF, CMD_IFELS, CMD_WHILE, CMD_PROC };
+enum value_type { VAL_VAR, VAL_LIT };
+}
+
 class GENERIC_BLOCK {
  protected:
   int _type = 0;
@@ -54,10 +56,9 @@ class VAR_BLOCK {
 
 class VALUE_BLOCK {
  public:
-  enum value_type { var, number };
-  VALUE_BLOCK(value_type value_type);
+  VALUE_BLOCK(basic_blocks_types::value_type value_type);
   std::vector<std::string> translate_block();
-  value_type _value_type;
+  basic_blocks_types::value_type _value_type;
   VAR_BLOCK *_var_block;
   NUM_BLOCK *_num_block;
 };
@@ -67,12 +68,16 @@ class VALUE_BLOCK {
  */
 class EXPRESSION_BLOCK : public GENERIC_BLOCK {
  public:
-  enum expression_type { value, add, sub, mul, diw, mod };
-  EXPRESSION_BLOCK(expression_type type, VALUE_BLOCK* lhs, VALUE_BLOCK* rhs);
+
+  EXPRESSION_BLOCK(basic_blocks_types::expression_type type,
+                   VALUE_BLOCK *lhs,
+                   VALUE_BLOCK *rhs,
+                   Compiler *compiler);
+  Compiler *_compiler;
   std::vector<std::string> translate_block() override;
-  expression_type _type;
-  VALUE_BLOCK* _lhs;
-  VALUE_BLOCK* _rhs;
+  basic_blocks_types::expression_type _type;
+  VALUE_BLOCK *_lhs;
+  VALUE_BLOCK *_rhs;
 };
 
 
@@ -118,10 +123,9 @@ class ASSIGN_BLOCK {
 
 class COMMAND_BLOCK {
  public:
-  enum command_type { write, assign, read, iff, iffels, whilee, proc };
-  COMMAND_BLOCK(command_type command_type);
+  COMMAND_BLOCK(basic_blocks_types::command_type command_type);
   std::vector<std::string> translate_block();
-  command_type _commnad_type;
+  basic_blocks_types::command_type _commnad_type;
   WRITE_BLOCK *_write_block;
   ASSIGN_BLOCK *_assign_block;
   READ_BLOCK *_read_block;

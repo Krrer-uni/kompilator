@@ -1,8 +1,17 @@
 PROGRAM IS
 VAR x, y, z
 BEGIN
-WRITE 10;
+WRITE 6969;
 READ x;
 WRITE x;
+y := 20-x;
 WRITE y;
+y := 102-102;
+WRITE y;
+y := x-3;
+WRITE y;
+y := x-y;
+WRITE y;
+x := 2;
+WRITE x;
 END
