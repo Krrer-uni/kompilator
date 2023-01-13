@@ -36,8 +36,6 @@ std::vector<std::string> EXPRESSION_BLOCK::translate_block() {
           if (_compiler->find_const(rhs_val) == nullptr) {
             if (_compiler->find_const(lhs_val) == nullptr) {
               auto new_const = _compiler->add_const_variable(rhs_val);
-              code.push_back("SET " + std::to_string(rhs_val) + " [allocate const] ");
-              code.push_back("STORE " + std::to_string(new_const->memory_index) + " [allocate const] ");
               code.push_back("SET " + std::to_string(lhs_val));
               code.push_back("ADD " + std::to_string(new_const->memory_index));
             } else {
@@ -71,8 +69,6 @@ std::vector<std::string> EXPRESSION_BLOCK::translate_block() {
           variable* literal_var = _compiler->find_const(rhs_val);
           if(literal_var == nullptr){
             literal_var = _compiler->add_const_variable(rhs_val);
-            code.push_back("SET " + std::to_string(rhs_val) + " [allocate const] ");
-            code.push_back("STORE " + std::to_string(literal_var->memory_index) + " [allocate const] ");
           }
           code.push_back("LOAD" + _lhs->_var_block->get_memory_adress());
           code.push_back("SUB " + std::to_string(literal_var->memory_index));
@@ -89,7 +85,7 @@ std::vector<std::string> EXPRESSION_BLOCK::translate_block() {
           }
         }
       }
-      code[0] = code[0] + " [ SUBTRACTION ] ";
+      code[0] = code[0] + Compiler::compiler_log(" [ SUBTRACTION ] ",2);
       break;
     case basic_blocks_types::EXP_MUL:break;
     case basic_blocks_types::EXP_DIV:break;

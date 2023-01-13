@@ -1,0 +1,19 @@
+PROGRAM IS
+VAR x, y, z,x
+BEGIN
+WRITE 6969;
+x := 10;
+y := 20;
+IF x > 0 THEN
+    WRITE 1;
+ENDIF
+IF x > y THEN
+    WRITE 2;
+ENDIF
+IF 2 > x THEN
+    WRITE 3;
+ENDIF
+IF 4 > 2 THEN
+    WRITE 4;
+ENDIF
+END

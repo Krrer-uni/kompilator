@@ -21,6 +21,7 @@ class Compiler;
 namespace basic_blocks_types {
 enum expression_type { EXP_VAL, EXP_ADD, EXP_SUB, EXP_MUL, EXP_DIV, EXP_MOD };
 enum command_type { CMD_WRITE, CMD_ASIGN, CMD_READ, CMD_IF, CMD_IFELS, CMD_WHILE, CMD_PROC };
+enum condition_type { CON_EQ, CON_NEQ, CON_GR, CON_GRE, CON_LS, CON_LSE };
 enum value_type { VAL_VAR, VAL_LIT };
 }
 
@@ -47,7 +48,6 @@ class NUM_BLOCK {
 class VAR_BLOCK {
  public:
   VAR_BLOCK(std::string name, variable_type variable_type, unsigned int memory_index);
-  std::vector<std::string> translate_block();
   std::string get_memory_adress();
   std::string _var_name;
   uint64_t _memory_block{};
@@ -57,7 +57,7 @@ class VAR_BLOCK {
 class VALUE_BLOCK {
  public:
   VALUE_BLOCK(basic_blocks_types::value_type value_type);
-  std::vector<std::string> translate_block();
+  std::string to_acc();
   basic_blocks_types::value_type _value_type;
   VAR_BLOCK *_var_block;
   NUM_BLOCK *_num_block;
@@ -80,21 +80,42 @@ class EXPRESSION_BLOCK : public GENERIC_BLOCK {
   VALUE_BLOCK *_rhs;
 };
 
+/**
+ * CONDITION BLOCKS
+ */
+class CONDITION_BLOCK : public GENERIC_BLOCK {
+ public:
+  CONDITION_BLOCK(basic_blocks_types::condition_type type,
+                  VALUE_BLOCK *lhs,
+                  VALUE_BLOCK *rhs,
+                  std::string tag,
+                  Compiler * compiler);
+  Compiler *_compiler;
+  std::vector<std::string> translate_block();
+  std::string _tag;
+  VALUE_BLOCK *_lhs;
+  VALUE_BLOCK *_rhs;
+  basic_blocks_types::condition_type _condition_type;
+ private:
+  std::vector<std::string> translate_eq();
+  std::vector<std::string> translate_neq();
+  std::vector<std::string> translate_gr();
+  std::vector<std::string> translate_gre();
+};
 
-
-//class ADDITION_BLOCK : public EXPRESSION_BLOCK {
-// public:
-//  ADDITION_BLOCK(VALUE_BLOCK *lhs, VALUE_BLOCK *rhs);
-//  std::vector<std::string> translate_block() override;
-// private:
-//  VALUE_BLOCK *_lhs;
-//  VALUE_BLOCK *_rhs;
-//};
 
 /**
  * COMMANDS
  */
+class COMMANDS_BLOCK;
 
+class IF_BLOCK{
+ public:
+  IF_BLOCK(CONDITION_BLOCK* condition_block, COMMANDS_BLOCK* commands_block);
+  CONDITION_BLOCK* _condition_block;
+  COMMANDS_BLOCK* _commands_block;
+  std::vector<std::string> translate_block();
+};
 
 class WRITE_BLOCK {
  public:
@@ -129,10 +150,7 @@ class COMMAND_BLOCK {
   WRITE_BLOCK *_write_block;
   ASSIGN_BLOCK *_assign_block;
   READ_BLOCK *_read_block;
-};
-
-class VARIABLE_DECLARATION_BLOCK : public GENERIC_BLOCK {
-  std::vector<VAR_BLOCK *> _vars;
+  IF_BLOCK* _if_block;
 };
 
 class COMMANDS_BLOCK : public GENERIC_BLOCK {
@@ -144,6 +162,9 @@ class COMMANDS_BLOCK : public GENERIC_BLOCK {
   std::vector<COMMAND_BLOCK *> _commands;
 };
 
+/**
+ * MAIN BLOCK
+ */
 class MAIN_BLOCK : GENERIC_BLOCK {
  public:
   MAIN_BLOCK(COMMANDS_BLOCK *commands_block);

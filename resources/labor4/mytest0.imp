@@ -1,12 +1,12 @@
 PROGRAM IS
-VAR x, y, z
+VAR x, y, z,x
 BEGIN
 WRITE 6969;
 READ x;
 WRITE x;
 y := 20-x;
 WRITE y;
-y := 102-102;
+y := 106-102;
 WRITE y;
 y := x-3;
 WRITE y;

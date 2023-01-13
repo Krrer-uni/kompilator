@@ -15,6 +15,7 @@ ADD_FLEX_BISON_DEPENDENCY(CompilerScanner CompilerParser)
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 add_executable(kompilator main.cc ${BISON_CompilerParser_OUTPUTS}
-        ${FLEX_CompilerScanner_OUTPUTS} lexer/lexer.l variables.h compiler.h basic_blocks/basic_blocks.h basic_blocks/basic_blocks.cc compiler.cc variables.cc basic_blocks/expressions.cc)
+        ${FLEX_CompilerScanner_OUTPUTS} lexer/lexer.l variables.h compiler.h basic_blocks/basic_blocks.h
+        basic_blocks/basic_blocks.cc compiler.cc variables.cc basic_blocks/expressions.cc basic_blocks/commands.cc basic_blocks/conditions.cc)
 
 target_link_libraries(kompilator ${FLEX_LIBRARIES} ${BISON_LIBRARIES})

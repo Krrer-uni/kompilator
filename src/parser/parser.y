@@ -25,8 +25,7 @@
   std::string output;
   const unsigned int gf_base = 1234577;
   bool error_flag = false;
-  int compiler_debug_mode = 1;
-  auto compiler = new Compiler(compiler_debug_mode);
+  auto compiler = new Compiler();
 }
 
 
@@ -39,7 +38,8 @@
    COMMAND_BLOCK* command_type;
    COMMANDS_BLOCK* commands_type;
    MAIN_BLOCK* main_type;
-	EXPRESSION_BLOCK* expression_type;
+   EXPRESSION_BLOCK* expression_type;
+   CONDITION_BLOCK* condition_type;
 }
 
 %token <num> num
@@ -84,6 +84,8 @@
 %type <commands_type> commands
 %type <main_type> main
 %type <expression_type> expression
+%type <condition_type> condition
+
  %verbose
  %define parse.error detailed
  %define parse.trace
@@ -109,7 +111,7 @@ commands: commands command { $$ = compiler->handle_command($1, $2); }
 
 command: identifier ASSIGN expression SEMICOL { $$ = compiler->handle_assign(*$1,$3);}
 | IF condition THEN commands ELSE commands ENDIF { std::cout << "IF ELSE" << std::endl; }
-| IF condition THEN commands ENDIF { std::cout << "IF" << std::endl; }
+| IF condition THEN commands ENDIF { $$ = compiler->handle_if($2,$4);}
 | WHILE condition DO commands ENDWHILE { std::cout << "WHILE" << std::endl; }
 | REPEAT commands UNTIL condition SEMICOL { std::cout << "REPEAT" << std::endl; }
 | proc_head SEMICOL { std::cout << "procedure" << std::endl; }
@@ -136,12 +138,12 @@ expression: value { $$ = compiler->handle_expression( basic_blocks_types::EXP_VA
 | value DIV value { $$ = compiler->handle_expression( basic_blocks_types::EXP_DIV, $1, $3); }
 | value MOD value { $$ = compiler->handle_expression( basic_blocks_types::EXP_MOD, $1, $3); }
 
-condition: value EQUAL value { std::cout << "EQUAL" << std::endl; }
-| value NOTEQUAL value { std::cout << "NOTEQUAL" << std::endl; }
-| value GREATER value { std::cout << "GREATER" << std::endl; }
-| value LESS value { std::cout << "LESS" << std::endl; }
-| value GREATEREQUAL value { std::cout << "GREATEREQUAL" << std::endl; }
-| value LESSEQUAL value { std::cout << "LESSEQUAL" << std::endl; }
+condition: value EQUAL value { $$ = compiler->handle_condition(basic_blocks_types::CON_EQ, $1,$3); }
+| value NOTEQUAL value { $$ = compiler->handle_condition(basic_blocks_types::CON_NEQ, $1,$3); }
+| value GREATER value { $$ = compiler->handle_condition(basic_blocks_types::CON_GR, $1,$3); }
+| value LESS value { $$ = compiler->handle_condition(basic_blocks_types::CON_LS, $1,$3); }
+| value GREATEREQUAL value { $$ = compiler->handle_condition(basic_blocks_types::CON_GRE, $1,$3); }
+| value LESSEQUAL value { $$ = compiler->handle_condition(basic_blocks_types::CON_LSE, $1,$3); }
 
 value: num {$$ = compiler->handle_literal($1);}
 | identifier {$$ = compiler->handle_variable(*$1);}
