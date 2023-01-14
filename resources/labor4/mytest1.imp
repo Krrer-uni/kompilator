@@ -16,4 +16,18 @@ ENDIF
 IF 4 > 2 THEN
     WRITE 4;
 ENDIF
+
+IF x = 10 THEN
+    WRITE 5;
+ENDIF
+IF x = 11 THEN
+    WRITE 6;
+ENDIF
+IF x != 10 THEN
+    WRITE 7;
+ENDIF
+IF x != 11 THEN
+    WRITE 8;
+ENDIF
+
 END

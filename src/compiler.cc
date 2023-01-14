@@ -32,6 +32,8 @@ void Compiler::handle_program() {
                                       + Compiler::compiler_log(" [allocate const] ", 2));
   }
   main_code.insert(main_code.begin(), allocate_const_code.begin(), allocate_const_code.end());
+
+  translate_tags();
   if (_output_file == nullptr) {
     std::cout << "NO OUTPUT FILE FOUND \n";
     for (const auto &line : main_code) {
@@ -225,6 +227,26 @@ COMMAND_BLOCK *Compiler::handle_if(CONDITION_BLOCK *condition_block,
 
   compiler_log("added IF block", 1);
   return command_block;
+}
+void Compiler::translate_tags() {
+  int i = 0;
+  for(auto line = main_code.begin(); line != main_code.end(); line++, i++){
+    if((*line)[0] == '&'){
+      _tag_map[*line] = i;
+      std::string tag = (*line).substr(1);
+      line = main_code.erase(line);
+      line->append(compiler_log(" [ ^" + tag  + " ] ", 4));
+    }
+  }
+  for(auto line = main_code.begin(); line != main_code.end(); line++, i++){
+    auto index_start = (*line).find("&");
+    if(index_start != std::string::npos){
+      auto tag = (*line).substr(index_start);
+      auto tag_line = _tag_map[tag];
+      line->erase(index_start);
+      line->append(std::to_string(tag_line) + compiler_log(" [ JUMP ^" + tag.substr(1) + " ] ", 4));
+    }
+  }
 }
 
 

@@ -95,11 +95,11 @@ std::vector<std::string> CONDITION_BLOCK::translate_neq() {
   code.emplace_back("SUB" + _rhs->_var_block->get_memory_adress());
   code.emplace_back("JZERO " + _tag + "_1");
   code.emplace_back("JUMP " + _tag + "_2");
-  code.emplace_back(_tag + "_1 ");
+  code.emplace_back(_tag + "_1");
   code.emplace_back(_rhs->to_acc());
   code.emplace_back("SUB" + _lhs->_var_block->get_memory_adress());
   code.emplace_back("JZERO " + _tag);
-  code.emplace_back(_tag + "_2 ");
+  code.emplace_back(_tag + "_2");
 
   return code;
 }

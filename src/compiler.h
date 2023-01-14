@@ -37,7 +37,9 @@ class Compiler {
   CONDITION_BLOCK* handle_condition(basic_blocks_types::condition_type condition_type, VALUE_BLOCK* lhs, VALUE_BLOCK* rhs);
   COMMAND_BLOCK* handle_assign(std::string identifier, EXPRESSION_BLOCK* expression_block);
 
+
   void handle_main(COMMANDS_BLOCK* commands_block);
+  void translate_tags();
   static std::string compiler_log(std::string msg, int log_level);
   static void set_log_level(int log_level);
   static int COMPILER_DEBUG_MODE;
@@ -45,6 +47,7 @@ class Compiler {
   _IO_FILE* _output_file;
   std::map<std::string, variable> _variable_map;
   std::map<literal, variable> _const_map;
+  std::map<std::string,unsigned int> _tag_map;
   unsigned int _memory_count;
   unsigned int _tag_count;
   MAIN_BLOCK* _main = nullptr;
