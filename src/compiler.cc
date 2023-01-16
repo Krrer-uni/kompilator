@@ -220,14 +220,6 @@ CONDITION_BLOCK *Compiler::handle_condition(basic_blocks_types::condition_type c
   return block;
 }
 
-COMMAND_BLOCK *Compiler::handle_if(CONDITION_BLOCK *condition_block,
-                                   COMMANDS_BLOCK *commands_block) {
-  auto command_block = new COMMAND_BLOCK(basic_blocks_types::CMD_IF);
-  command_block->_if_block = new IF_BLOCK(condition_block, commands_block);
-
-  compiler_log("added IF block", 1);
-  return command_block;
-}
 void Compiler::translate_tags() {
   int i = 0;
   for(auto line = main_code.begin(); line != main_code.end(); line++, i++){
@@ -241,12 +233,32 @@ void Compiler::translate_tags() {
   for(auto line = main_code.begin(); line != main_code.end(); line++, i++){
     auto index_start = (*line).find("&");
     if(index_start != std::string::npos){
-      auto tag = (*line).substr(index_start);
+      auto line_from_tag = (*line).substr(index_start);
+      auto tag = line_from_tag.substr(0,line_from_tag.find(" "));
       auto tag_line = _tag_map[tag];
       line->erase(index_start);
       line->append(std::to_string(tag_line) + compiler_log(" [ JUMP ^" + tag.substr(1) + " ] ", 4));
     }
   }
+}
+
+COMMAND_BLOCK *Compiler::handle_if(CONDITION_BLOCK *condition_block,
+                                   COMMANDS_BLOCK *commands_block) {
+  auto command_block = new COMMAND_BLOCK(basic_blocks_types::CMD_IF);
+  command_block->_if_block = new IF_BLOCK(condition_block, commands_block);
+
+  compiler_log("added IF block", 1);
+  return command_block;
+}
+
+COMMAND_BLOCK *Compiler::handle_if_else(CONDITION_BLOCK *condition_block,
+                                        COMMANDS_BLOCK *if_commands_block,
+                                        COMMANDS_BLOCK *else_commands_block) {
+  auto command_block = new COMMAND_BLOCK(basic_blocks_types::CMD_IFELS);
+  command_block->_if_else_block = new IF_ELSE_BLOCK(condition_block,if_commands_block, else_commands_block);
+
+  compiler_log("added IF ELSE block", 1);
+  return command_block;
 }
 
 

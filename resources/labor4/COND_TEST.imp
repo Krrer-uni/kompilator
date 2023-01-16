@@ -1,0 +1,441 @@
+PROGRAM IS
+VAR x, y
+BEGIN
+WRITE 2137;
+x := 10;
+y := 20;
+
+IF x > 0 THEN
+    WRITE 1;
+ELSE
+    WRITE 0;
+ENDIF
+
+IF y > x THEN
+    WRITE 1;
+ELSE
+    WRITE 0;
+ENDIF
+
+IF 3 > 0 THEN
+    WRITE 1;
+ELSE
+    WRITE 0;
+ENDIF
+
+IF 30 > x THEN
+    WRITE 1;
+ELSE
+    WRITE 0;
+ENDIF
+
+
+IF x > 20 THEN
+    WRITE 0;
+ELSE
+    WRITE 1;
+ENDIF
+
+IF x > y THEN
+    WRITE 0;
+ELSE
+    WRITE 1;
+ENDIF
+
+IF 0 > 3 THEN
+    WRITE 0;
+ELSE
+    WRITE 1;
+ENDIF
+
+IF x > 30 THEN
+    WRITE 0;
+ELSE
+    WRITE 1;
+ENDIF
+
+[ **************************GREATER EQ******************************* ]
+
+IF x >= 0 THEN
+    WRITE 1;
+ELSE
+    WRITE 0;
+ENDIF
+
+IF y >= x THEN
+    WRITE 1;
+ELSE
+    WRITE 0;
+ENDIF
+
+IF 3 >= 0 THEN
+    WRITE 1;
+ELSE
+    WRITE 0;
+ENDIF
+
+IF 30 >= x THEN
+    WRITE 1;
+ELSE
+    WRITE 0;
+ENDIF
+
+IF x >= 10 THEN
+    WRITE 1;
+ELSE
+    WRITE 0;
+ENDIF
+
+y:=10;
+IF y >= x THEN
+    WRITE 1;
+ELSE
+    WRITE 0;
+ENDIF
+y:=20;
+
+IF 0 >= 0 THEN
+    WRITE 1;
+ELSE
+    WRITE 0;
+ENDIF
+
+IF 30 >= 30 THEN
+    WRITE 1;
+ELSE
+    WRITE 0;
+ENDIF
+
+IF 10 >= x THEN
+    WRITE 1;
+ELSE
+    WRITE 0;
+ENDIF
+
+
+IF x >= 20 THEN
+    WRITE 0;
+ELSE
+    WRITE 1;
+ENDIF
+
+IF x >= y THEN
+    WRITE 0;
+ELSE
+    WRITE 1;
+ENDIF
+
+IF 0 >= 3 THEN
+    WRITE 0;
+ELSE
+    WRITE 1;
+ENDIF
+
+IF 3 >= 4 THEN
+    WRITE 0;
+ELSE
+    WRITE 1;
+ENDIF
+
+IF x >= 30 THEN
+    WRITE 0;
+ELSE
+    WRITE 1;
+ENDIF
+
+[ LESSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS ]
+
+IF x < 0 THEN
+    WRITE 0;
+ELSE
+    WRITE 1;
+ENDIF
+
+IF y < x THEN
+    WRITE 0;
+ELSE
+    WRITE 1;
+ENDIF
+
+IF 3 < 0 THEN
+    WRITE 0;
+ELSE
+    WRITE 1;
+ENDIF
+
+IF 30 < x THEN
+    WRITE 0;
+ELSE
+    WRITE 1;
+ENDIF
+
+
+IF x < 20 THEN
+    WRITE 1;
+ELSE
+    WRITE 0;
+ENDIF
+
+IF x < y THEN
+    WRITE 1;
+ELSE
+    WRITE 0;
+ENDIF
+
+IF 0 < 3 THEN
+    WRITE 1;
+ELSE
+    WRITE 0;
+ENDIF
+
+IF x < 30 THEN
+    WRITE 1;
+ELSE
+    WRITE 0;
+ENDIF
+
+[ **************************LESS EQ******************************* ]
+
+IF x <= 20 THEN
+    WRITE 1;
+ELSE
+    WRITE 0;
+ENDIF
+
+x:=0;
+IF x <= 0 THEN
+    WRITE 1;
+ELSE
+    WRITE 0;
+ENDIF
+x:=10;
+
+IF x <= y THEN
+    WRITE 1;
+ELSE
+    WRITE 0;
+ENDIF
+
+IF 0 <= 3 THEN
+    WRITE 1;
+ELSE
+    WRITE 0;
+ENDIF
+
+
+IF 5 <= x THEN
+    WRITE 1;
+ELSE
+    WRITE 0;
+ENDIF
+
+IF x <= 10 THEN
+    WRITE 1;
+ELSE
+    WRITE 0;
+ENDIF
+
+y:=10;
+IF y <= x THEN
+    WRITE 1;
+ELSE
+    WRITE 0;
+ENDIF
+y:=20;
+
+IF 0 <= 0 THEN
+    WRITE 1;
+ELSE
+    WRITE 0;
+ENDIF
+
+IF 30 <= 30 THEN
+    WRITE 1;
+ELSE
+    WRITE 0;
+ENDIF
+
+IF 10 <= x THEN
+    WRITE 1;
+ELSE
+    WRITE 0;
+ENDIF
+
+
+IF x <= 5 THEN
+    WRITE 0;
+ELSE
+    WRITE 1;
+ENDIF
+
+IF y <= x THEN
+    WRITE 0;
+ELSE
+    WRITE 1;
+ENDIF
+
+IF 3 <= 0 THEN
+    WRITE 0;
+ELSE
+    WRITE 1;
+ENDIF
+
+IF 4 <= 3 THEN
+    WRITE 0;
+ELSE
+    WRITE 1;
+ENDIF
+
+[ ********************************** EQQQQQ  ***************************************8]
+
+IF 0 = 0 THEN
+    WRITE 1;
+ELSE
+    WRITE 0;
+ENDIF
+
+IF 1 = 1 THEN
+    WRITE 1;
+ELSE
+    WRITE 0;
+ENDIF
+
+y:=x;
+
+IF x = y THEN
+    WRITE 1;
+ELSE
+    WRITE 0;
+ENDIF
+
+IF x = 10 THEN
+    WRITE 1;
+ELSE
+    WRITE 0;
+ENDIF
+
+IF 10 = x THEN
+    WRITE 1;
+ELSE
+    WRITE 0;
+ENDIF
+
+y:=x + 1;
+
+IF x = y THEN
+    WRITE 0;
+ELSE
+    WRITE 1;
+ENDIF
+
+IF x = 11 THEN
+    WRITE 0;
+ELSE
+    WRITE 1;
+ENDIF
+
+IF 10 = y THEN
+    WRITE 0;
+ELSE
+    WRITE 1;
+ENDIF
+
+IF 3 = 5 THEN
+    WRITE 0;
+ELSE
+    WRITE 1;
+ENDIF
+
+IF 0 = 5 THEN
+    WRITE 0;
+ELSE
+    WRITE 1;
+ENDIF
+
+IF 3 = 0 THEN
+    WRITE 0;
+ELSE
+    WRITE 1;
+ENDIF
+
+[  *****************************************8 NEQQQQQ *************************************** ]
+
+IF 3 != 0 THEN
+    WRITE 1;
+ELSE
+    WRITE 0;
+ENDIF
+
+IF 0 != 3 THEN
+    WRITE 1;
+ELSE
+    WRITE 0;
+ENDIF
+
+IF 1 != 2 THEN
+    WRITE 1;
+ELSE
+    WRITE 0;
+ENDIF
+
+IF 2 != 1 THEN
+    WRITE 1;
+ELSE
+    WRITE 0;
+ENDIF
+
+y:=x+1;
+
+IF x != y THEN
+    WRITE 1;
+ELSE
+    WRITE 0;
+ENDIF
+
+IF x != 11 THEN
+    WRITE 1;
+ELSE
+    WRITE 0;
+ENDIF
+
+IF 11 != x THEN
+    WRITE 1;
+ELSE
+    WRITE 0;
+ENDIF
+
+y:=x;
+
+IF x != y THEN
+    WRITE 0;
+ELSE
+    WRITE 1;
+ENDIF
+
+IF x != 10 THEN
+    WRITE 0;
+ELSE
+    WRITE 1;
+ENDIF
+
+IF 10 != y THEN
+    WRITE 0;
+ELSE
+    WRITE 1;
+ENDIF
+
+IF 3 != 3 THEN
+    WRITE 0;
+ELSE
+    WRITE 1;
+ENDIF
+
+IF 0 != 0 THEN
+    WRITE 0;
+ELSE
+    WRITE 1;
+ENDIF
+
+
+
+END

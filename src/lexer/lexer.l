@@ -52,6 +52,6 @@ int yylex();
 }
 <IN_COMMENT>{
 "]"                 BEGIN(INITIAL);
-[^\n]+              ;
+[^\n\]]+              ;
 }
 %%

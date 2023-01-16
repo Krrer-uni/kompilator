@@ -117,6 +117,15 @@ class IF_BLOCK{
   std::vector<std::string> translate_block();
 };
 
+class IF_ELSE_BLOCK{
+ public:
+  IF_ELSE_BLOCK(CONDITION_BLOCK* condition_block, COMMANDS_BLOCK* if_commands_block, COMMANDS_BLOCK* else_commands_block);
+  CONDITION_BLOCK* _condition_block;
+  COMMANDS_BLOCK* _if_commands_block;
+  COMMANDS_BLOCK* _else_commands_block;
+  std::vector<std::string> translate_block();
+};
+
 class WRITE_BLOCK {
  public:
   explicit WRITE_BLOCK(VALUE_BLOCK *output);
@@ -151,6 +160,7 @@ class COMMAND_BLOCK {
   ASSIGN_BLOCK *_assign_block;
   READ_BLOCK *_read_block;
   IF_BLOCK* _if_block;
+  IF_ELSE_BLOCK* _if_else_block;
 };
 
 class COMMANDS_BLOCK : public GENERIC_BLOCK {

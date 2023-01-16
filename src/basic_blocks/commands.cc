@@ -25,7 +25,9 @@ COMMAND_BLOCK::COMMAND_BLOCK(basic_blocks_types::command_type command_type)
     : _commnad_type(command_type),
       _write_block(nullptr),
       _assign_block(nullptr),
-      _read_block(nullptr) {
+      _read_block(nullptr),
+      _if_block(nullptr),
+      _if_else_block(nullptr){
 
 }
 
@@ -40,6 +42,8 @@ std::vector<std::string> COMMAND_BLOCK::translate_block() {
     case basic_blocks_types::CMD_READ:code = _read_block->translate_block();
       break;
     case basic_blocks_types::CMD_IF:code = _if_block->translate_block();
+      break;
+    case basic_blocks_types::CMD_IFELS:code = _if_else_block->translate_block();
       break;
     default:std::cout << "jeszcze nie zaimplementowałeś tej komendy \n";
       break;
@@ -75,7 +79,7 @@ WRITE_BLOCK::WRITE_BLOCK(VALUE_BLOCK *output) {
 std::vector<std::string> WRITE_BLOCK::translate_block() {
   std::vector<std::string> code;
   if (_output->_value_type == basic_blocks_types::VAL_VAR) {
-    code.emplace_back("PUT" + _output->_var_block->get_memory_adress() );
+    code.emplace_back("PUT" + _output->_var_block->get_memory_adress());
   } else {
     code.push_back("SET " + std::to_string(_output->_num_block->_number_literal));
     code.emplace_back("PUT 0");
@@ -92,7 +96,29 @@ std::vector<std::string> IF_BLOCK::translate_block() {
   std::vector<std::string> code;
   code = _condition_block->translate_block();
   auto commands_code = _commands_block->translate_block();
-  code.insert(code.end(),commands_code.begin(),commands_code.end());
+  code.insert(code.end(), commands_code.begin(), commands_code.end());
   code.push_back(_condition_block->_tag);
+  return code;
+}
+
+IF_ELSE_BLOCK::IF_ELSE_BLOCK(CONDITION_BLOCK *condition_block,
+                             COMMANDS_BLOCK *if_commands_block,
+                             COMMANDS_BLOCK *else_commands_block)
+    : _condition_block(condition_block),
+      _else_commands_block(else_commands_block),
+      _if_commands_block(if_commands_block) {
+
+}
+
+std::vector<std::string> IF_ELSE_BLOCK::translate_block() {
+  std::vector<std::string> code;
+  code = _condition_block->translate_block();
+  auto commands_code = _if_commands_block->translate_block();
+  code.insert(code.end(), commands_code.begin(), commands_code.end());
+  code.push_back("JUMP " + _condition_block->_tag + "end");
+  code.push_back(_condition_block->_tag);
+  commands_code = _else_commands_block->translate_block();
+  code.insert(code.end(), commands_code.begin(), commands_code.end());
+  code.push_back(_condition_block->_tag + "end");
   return code;
 }
