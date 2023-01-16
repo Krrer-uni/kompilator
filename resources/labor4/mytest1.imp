@@ -1,33 +1,20 @@
 PROGRAM IS
-VAR x, y, z,x
+VAR x, y, i
 BEGIN
 WRITE 6969;
 x := 10;
 y := 20;
-IF x > 0 THEN
-    WRITE 1;
-ENDIF
-IF x > y THEN
-    WRITE 2;
-ENDIF
-IF 2 > x THEN
-    WRITE 3;
-ENDIF
-IF 4 > 2 THEN
-    WRITE 4;
-ENDIF
+i := 0;
 
-IF x = 10 THEN
-    WRITE 5;
-ENDIF
-IF x = 11 THEN
-    WRITE 6;
-ENDIF
-IF x != 10 THEN
-    WRITE 7;
-ENDIF
-IF x != 11 THEN
-    WRITE 8;
-ENDIF
+WHILE i <= 20 DO
+WRITE i;
+i := i + 1;
+ENDWHILE
+
+i := 0;
+REPEAT
+WRITE i;
+i := i + 1;
+UNTIL i <= 1000 ;
 
 END

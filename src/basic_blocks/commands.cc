@@ -27,7 +27,9 @@ COMMAND_BLOCK::COMMAND_BLOCK(basic_blocks_types::command_type command_type)
       _assign_block(nullptr),
       _read_block(nullptr),
       _if_block(nullptr),
-      _if_else_block(nullptr){
+      _if_else_block(nullptr),
+      _repeat_block(nullptr),
+      _while_block(nullptr) {
 
 }
 
@@ -44,6 +46,10 @@ std::vector<std::string> COMMAND_BLOCK::translate_block() {
     case basic_blocks_types::CMD_IF:code = _if_block->translate_block();
       break;
     case basic_blocks_types::CMD_IFELS:code = _if_else_block->translate_block();
+      break;
+    case basic_blocks_types::CMD_WHILE:code = _while_block->translate_block();
+      break;
+    case basic_blocks_types::CMD_REPEAT:code = _repeat_block->translate_block();
       break;
     default:std::cout << "jeszcze nie zaimplementowałeś tej komendy \n";
       break;
@@ -120,5 +126,36 @@ std::vector<std::string> IF_ELSE_BLOCK::translate_block() {
   commands_code = _else_commands_block->translate_block();
   code.insert(code.end(), commands_code.begin(), commands_code.end());
   code.push_back(_condition_block->_tag + "end");
+  return code;
+}
+
+WHILE_BLOCK::WHILE_BLOCK(CONDITION_BLOCK *condition_block, COMMANDS_BLOCK *commands_block)
+    : _condition_block(condition_block), _commands_block(commands_block) {
+}
+
+std::vector<std::string> WHILE_BLOCK::translate_block() {
+  std::vector<std::string> code;
+  code = _condition_block->translate_block();
+  code.insert(code.begin(), _condition_block->_tag + "while");
+  auto commands_code = _commands_block->translate_block();
+  code.insert(code.end(), commands_code.begin(), commands_code.end());
+  code.insert(code.end(), "JUMP " + _condition_block->_tag + "while");
+  code.push_back(_condition_block->_tag);
+  return code;
+}
+
+REPEAT_BLOCK::REPEAT_BLOCK(CONDITION_BLOCK *condition_block, COMMANDS_BLOCK *commands_block)
+    : _condition_block(condition_block), _commands_block(commands_block) {
+
+}
+std::vector<std::string> REPEAT_BLOCK::translate_block() {
+  std::vector<std::string> code;
+  code.insert(code.begin(), _condition_block->_tag + "repeat");
+  auto commands_code = _commands_block->translate_block();
+  code.insert(code.end(), commands_code.begin(), commands_code.end());
+  auto condition_code = _condition_block->translate_block();
+  code.insert(code.end(), condition_code.begin(), condition_code.end());
+  code.insert(code.end(), "JUMP " + _condition_block->_tag + "repeat");
+  code.push_back(_condition_block->_tag);
   return code;
 }

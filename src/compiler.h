@@ -34,7 +34,8 @@ class Compiler {
   COMMAND_BLOCK* handle_if(CONDITION_BLOCK* condition_block, COMMANDS_BLOCK* commands_block);
   COMMAND_BLOCK* handle_if_else(CONDITION_BLOCK* condition_block, COMMANDS_BLOCK* if_commands_block,
                                 COMMANDS_BLOCK* else_commands_block);
-
+  COMMAND_BLOCK* handle_while(CONDITION_BLOCK* condition_block, COMMANDS_BLOCK* commands_block);
+  COMMAND_BLOCK* handle_repeat(CONDITION_BLOCK* condition_block, COMMANDS_BLOCK* commands_block);
   COMMANDS_BLOCK* handle_command(COMMANDS_BLOCK* commands_block, COMMAND_BLOCK* command);
   EXPRESSION_BLOCK* handle_expression(basic_blocks_types::expression_type expression_type, VALUE_BLOCK* lhs, VALUE_BLOCK* rhs);
   CONDITION_BLOCK* handle_condition(basic_blocks_types::condition_type condition_type, VALUE_BLOCK* lhs, VALUE_BLOCK* rhs);

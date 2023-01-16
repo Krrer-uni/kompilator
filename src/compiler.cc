@@ -260,5 +260,20 @@ COMMAND_BLOCK *Compiler::handle_if_else(CONDITION_BLOCK *condition_block,
   compiler_log("added IF ELSE block", 1);
   return command_block;
 }
+COMMAND_BLOCK *Compiler::handle_while(CONDITION_BLOCK *condition_block,
+                                      COMMANDS_BLOCK *commands_block) {
+  auto command_block = new COMMAND_BLOCK(basic_blocks_types::CMD_WHILE);
+  command_block->_while_block = new WHILE_BLOCK(condition_block, commands_block);
+  compiler_log("added WHILE block", 1);
+  return command_block;
+}
+COMMAND_BLOCK *Compiler::handle_repeat(CONDITION_BLOCK *condition_block,
+                                       COMMANDS_BLOCK *commands_block) {
+  auto command_block = new COMMAND_BLOCK(basic_blocks_types::CMD_REPEAT);
+  command_block->_repeat_block = new REPEAT_BLOCK(condition_block, commands_block);
+
+  compiler_log("added REPEAT block", 1);
+  return command_block;
+}
 
 

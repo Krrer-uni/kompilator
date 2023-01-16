@@ -112,8 +112,8 @@ commands: commands command { $$ = compiler->handle_command($1, $2); }
 command: identifier ASSIGN expression SEMICOL { $$ = compiler->handle_assign(*$1,$3);}
 | IF condition THEN commands ELSE commands ENDIF { $$ = compiler->handle_if_else($2,$4,$6); }
 | IF condition THEN commands ENDIF { $$ = compiler->handle_if($2,$4);}
-| WHILE condition DO commands ENDWHILE { std::cout << "WHILE" << std::endl; }
-| REPEAT commands UNTIL condition SEMICOL { std::cout << "REPEAT" << std::endl; }
+| WHILE condition DO commands ENDWHILE { $$ = compiler->handle_while($2,$4);}
+| REPEAT commands UNTIL condition SEMICOL { $$ = compiler->handle_repeat($4,$2); }
 | proc_head SEMICOL { std::cout << "procedure" << std::endl; }
 | READ identifier SEMICOL { $$ =compiler->handle_read(*$2);}
 | WRITE value SEMICOL {$$ =compiler->handle_write($2);}

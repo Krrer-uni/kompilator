@@ -20,7 +20,7 @@ class Compiler;
 
 namespace basic_blocks_types {
 enum expression_type { EXP_VAL, EXP_ADD, EXP_SUB, EXP_MUL, EXP_DIV, EXP_MOD };
-enum command_type { CMD_WRITE, CMD_ASIGN, CMD_READ, CMD_IF, CMD_IFELS, CMD_WHILE, CMD_PROC };
+enum command_type { CMD_WRITE, CMD_ASIGN, CMD_READ, CMD_IF, CMD_IFELS, CMD_WHILE,CMD_REPEAT ,CMD_PROC };
 enum condition_type { CON_EQ, CON_NEQ, CON_GR, CON_GRE, CON_LS, CON_LSE };
 enum value_type { VAL_VAR, VAL_LIT };
 }
@@ -134,6 +134,22 @@ class WRITE_BLOCK {
   VALUE_BLOCK *_output;
 };
 
+class WHILE_BLOCK{
+ public:
+  WHILE_BLOCK(CONDITION_BLOCK* condition_block, COMMANDS_BLOCK* commands_block);
+  CONDITION_BLOCK* _condition_block;
+  COMMANDS_BLOCK* _commands_block;
+  std::vector<std::string> translate_block();
+};
+
+class REPEAT_BLOCK{
+ public:
+  REPEAT_BLOCK(CONDITION_BLOCK* condition_block, COMMANDS_BLOCK* commands_block);
+  CONDITION_BLOCK* _condition_block;
+  COMMANDS_BLOCK* _commands_block;
+  std::vector<std::string> translate_block();
+};
+
 class READ_BLOCK {
  public:
   explicit READ_BLOCK(VALUE_BLOCK *input);
@@ -161,6 +177,8 @@ class COMMAND_BLOCK {
   READ_BLOCK *_read_block;
   IF_BLOCK* _if_block;
   IF_ELSE_BLOCK* _if_else_block;
+  WHILE_BLOCK* _while_block;
+  REPEAT_BLOCK* _repeat_block;
 };
 
 class COMMANDS_BLOCK : public GENERIC_BLOCK {
