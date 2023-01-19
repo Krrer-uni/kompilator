@@ -40,6 +40,7 @@
    MAIN_BLOCK* main_type;
    EXPRESSION_BLOCK* expression_type;
    CONDITION_BLOCK* condition_type;
+   std::vector<variable>* proc_declaration_type;
 }
 
 %token <num> num
@@ -85,7 +86,7 @@
 %type <main_type> main
 %type <expression_type> expression
 %type <condition_type> condition
-
+%type <proc_declaration_type> proc_declarations
  %verbose
  %define parse.error detailed
  %define parse.trace
@@ -97,8 +98,8 @@ program_all: procedures main { compiler->handle_program();}
 ;
 
 procedures: procedures PROCEDURE proc_head IS VAR declarations BEGIN_ commands END { std::cout << "PROC \n";}
-| procedures PROCEDURE proc_head IS BEGIN_ commands END { std::cout << "procedure no var" ; }
-|
+| procedures PROCEDURE proc_head IS BEGIN_ commands END { std::cout << "procedure no var \n" ; }
+| {std::cout << "end of proc declarations \n";}
 ;
 
 main: PROGRAM IS VAR declarations BEGIN_ commands END { compiler->handle_main($6);}
@@ -114,20 +115,23 @@ command: identifier ASSIGN expression SEMICOL { $$ = compiler->handle_assign(*$1
 | IF condition THEN commands ENDIF { $$ = compiler->handle_if($2,$4);}
 | WHILE condition DO commands ENDWHILE { $$ = compiler->handle_while($2,$4);}
 | REPEAT commands UNTIL condition SEMICOL { $$ = compiler->handle_repeat($4,$2); }
-| proc_head SEMICOL { std::cout << "procedure" << std::endl; }
+| proc_use SEMICOL { std::cout << "procedure" << std::endl; }
 | READ identifier SEMICOL { $$ =compiler->handle_read(*$2);}
 | WRITE value SEMICOL {$$ =compiler->handle_write($2);}
 ;
 
-proc_head: identifier LPAREN proc_declarations RPAREN { std::cout << "proc head" << std::endl; }
+proc_head: identifier LPAREN proc_declarations RPAREN {  compiler->handle_proc_head($3) ;}
+;
+
+proc_use: identifier LPAREN proc_declarations RPAREN { std::cout << "proc head" << std::endl; }
 ;
 
 declarations: declarations COMMA identifier { compiler->handle_declaration(*$3, value_var); }
 | identifier {compiler->handle_declaration(*$1, value_var); }
 ;
 
-proc_declarations: proc_declarations COMMA identifier { std::cout << "PROC_Declaration \n";}
-| identifier { std::cout << "PROC_Declaration \n";}
+proc_declarations: proc_declarations COMMA identifier {$$ = compiler->handle_proc_declaration(*$3, $1);}
+| identifier {$$ = compiler->handle_proc_declaration(*$1, nullptr);}
 ;
 
 

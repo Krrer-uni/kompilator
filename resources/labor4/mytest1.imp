@@ -1,20 +1,27 @@
 PROGRAM IS
-VAR x, y, i
+VAR x, y, i, j
 BEGIN
 WRITE 6969;
 x := 10;
 y := 20;
 i := 0;
+j := 0;
 
-WHILE i <= 20 DO
-WRITE i;
-i := i + 1;
+
+WHILE i <= 5 DO
+    REPEAT
+        WRITE j;
+        j := j + 1;
+    UNTIL j <= 5 ;
+    j := 0;
+    i := i + 1;
 ENDWHILE
 
-i := 0;
 REPEAT
-WRITE i;
+    WRITE j;
+    j := j + 1;
+UNTIL j <= 6 ;
+j := 0;
 i := i + 1;
-UNTIL i <= 1000 ;
 
 END

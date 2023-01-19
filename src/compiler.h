@@ -27,6 +27,8 @@ class Compiler {
 
   void handle_program();
   void handle_declaration(std::string name, variable_type type);
+  void handle_proc_head(std::vector<variable> *proc_declarations);
+  std::vector<variable> * handle_proc_declaration(std::string name, std::vector<variable> *declarations);
   VALUE_BLOCK* handle_variable(const std::string& name);
   VALUE_BLOCK* handle_literal(literal value);
   COMMAND_BLOCK* handle_write(VALUE_BLOCK* output);
@@ -48,10 +50,13 @@ class Compiler {
   static void set_log_level(int log_level);
   static int COMPILER_DEBUG_MODE;
  private:
+  bool _proc_declaration_flag = false;
+  std::string _curr_proc_name ;
   _IO_FILE* _output_file;
   std::map<std::string, variable> _variable_map;
   std::map<literal, variable> _const_map;
   std::map<std::string,unsigned int> _tag_map;
+  std::map<std::string, PROCEDURE_BLOCK*> _proc_map;
   unsigned int _memory_count;
   unsigned int _tag_count;
   MAIN_BLOCK* _main = nullptr;

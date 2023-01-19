@@ -190,6 +190,22 @@ class COMMANDS_BLOCK : public GENERIC_BLOCK {
   std::vector<COMMAND_BLOCK *> _commands;
 };
 
+class PROC_DECLARATIONS : public GENERIC_BLOCK{
+  std::vector<variable> _var;
+};
+
+/**
+ * PROCEDURE
+ */
+class PROCEDURE_BLOCK : public GENERIC_BLOCK {
+  std::map<std::string,variable> _var_map;
+};
+
+class PROCEDURE_CALL_BLOCK : public GENERIC_BLOCK {
+ public:
+
+};
+
 /**
  * MAIN BLOCK
  */

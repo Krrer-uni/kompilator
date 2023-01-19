@@ -12,6 +12,7 @@ Compiler::Compiler() {
   _memory_count = 1;
   _tag_count = 1;
   _output_file = nullptr;
+  _curr_proc_name = "";
 }
 
 std::string Compiler::compiler_log(std::string msg, int log_level) {
@@ -51,8 +52,9 @@ void Compiler::add_variable(const std::string &name, variable_type type) {
   if (_variable_map.find(name) == _variable_map.end()) {
     _variable_map[name] = variable{name, type, _memory_count};
     _memory_count++;
+
   } else {
-    std::cout << "Redeclaration of variable \n";
+    std::cout << "Redeclaration of variable " + name + "\n";
   }
 }
 
@@ -62,6 +64,7 @@ void Compiler::handle_declaration(std::string name, variable_type type) {
     std::cout << "created var " + name + " with type " + std::to_string(type) + "\n";
   }
 }
+
 VALUE_BLOCK *Compiler::handle_variable(const std::string &name) {
   if (_variable_map.find(name) == _variable_map.end()) {
     std::cout << "variable " + name + " was not declared in the scope \n";
@@ -223,12 +226,14 @@ CONDITION_BLOCK *Compiler::handle_condition(basic_blocks_types::condition_type c
 void Compiler::translate_tags() {
   int i = 0;
   for(auto line = main_code.begin(); line != main_code.end(); line++, i++){
-    if((*line)[0] == '&'){
+    std::string tag_msg;
+    while((*line)[0] == '&'){
       _tag_map[*line] = i;
       std::string tag = (*line).substr(1);
+      tag_msg += " [ ^" + tag  + " ] ";
       line = main_code.erase(line);
-      line->append(compiler_log(" [ ^" + tag  + " ] ", 4));
     }
+    line->append(compiler_log(tag_msg, 4));
   }
   for(auto line = main_code.begin(); line != main_code.end(); line++, i++){
     auto index_start = (*line).find("&");
@@ -247,7 +252,7 @@ COMMAND_BLOCK *Compiler::handle_if(CONDITION_BLOCK *condition_block,
   auto command_block = new COMMAND_BLOCK(basic_blocks_types::CMD_IF);
   command_block->_if_block = new IF_BLOCK(condition_block, commands_block);
 
-  compiler_log("added IF block", 1);
+  std::cout << compiler_log("added IF block", 1) + "\n";
   return command_block;
 }
 
@@ -257,23 +262,41 @@ COMMAND_BLOCK *Compiler::handle_if_else(CONDITION_BLOCK *condition_block,
   auto command_block = new COMMAND_BLOCK(basic_blocks_types::CMD_IFELS);
   command_block->_if_else_block = new IF_ELSE_BLOCK(condition_block,if_commands_block, else_commands_block);
 
-  compiler_log("added IF ELSE block", 1);
+  std::cout << compiler_log( "added IF ELSE block", 1) + "\n";
   return command_block;
 }
 COMMAND_BLOCK *Compiler::handle_while(CONDITION_BLOCK *condition_block,
                                       COMMANDS_BLOCK *commands_block) {
   auto command_block = new COMMAND_BLOCK(basic_blocks_types::CMD_WHILE);
   command_block->_while_block = new WHILE_BLOCK(condition_block, commands_block);
-  compiler_log("added WHILE block", 1);
+  std::cout << compiler_log("added WHILE block", 1) + "\n";
   return command_block;
+
+
 }
 COMMAND_BLOCK *Compiler::handle_repeat(CONDITION_BLOCK *condition_block,
                                        COMMANDS_BLOCK *commands_block) {
   auto command_block = new COMMAND_BLOCK(basic_blocks_types::CMD_REPEAT);
   command_block->_repeat_block = new REPEAT_BLOCK(condition_block, commands_block);
 
-  compiler_log("added REPEAT block", 1);
+  std::cout << compiler_log("added REPEAT block", 1) + "\n";
   return command_block;
+}
+std::vector<variable>* Compiler::handle_proc_declaration(std::string name, std::vector<variable> *declarations) {
+  if(declarations == nullptr){
+    declarations = new std::vector<variable>;
+  }
+  for (const auto& var_name : *declarations) {
+    if(var_name.name == name){
+      std::cout << "Redeclaration of variable " + name + " in procedure\n";
+    }
+  }
+  add_variable(_curr_proc_name+name, pointer_var);
+  declarations->push_back(_variable_map[name]);
+  return declarations;
+}
+void Compiler::handle_proc_head(std::vector<variable> *proc_declarations) {
+
 }
 
 
