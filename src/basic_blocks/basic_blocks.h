@@ -10,6 +10,7 @@
 
 #define COMMANDS_BLOCK_TYPE 50
 
+#include <utility>
 #include <vector>
 #include <string>
 #include <map>
@@ -17,10 +18,19 @@
 #include "../variables.h"
 
 class Compiler;
-
+class PROCEDURE_CALL_BLOCK;
 namespace basic_blocks_types {
 enum expression_type { EXP_VAL, EXP_ADD, EXP_SUB, EXP_MUL, EXP_DIV, EXP_MOD };
-enum command_type { CMD_WRITE, CMD_ASIGN, CMD_READ, CMD_IF, CMD_IFELS, CMD_WHILE,CMD_REPEAT ,CMD_PROC };
+enum command_type {
+  CMD_WRITE,
+  CMD_ASIGN,
+  CMD_READ,
+  CMD_IF,
+  CMD_IFELS,
+  CMD_WHILE,
+  CMD_REPEAT,
+  CMD_PROC
+};
 enum condition_type { CON_EQ, CON_NEQ, CON_GR, CON_GRE, CON_LS, CON_LSE };
 enum value_type { VAL_VAR, VAL_LIT };
 }
@@ -89,7 +99,7 @@ class CONDITION_BLOCK : public GENERIC_BLOCK {
                   VALUE_BLOCK *lhs,
                   VALUE_BLOCK *rhs,
                   std::string tag,
-                  Compiler * compiler);
+                  Compiler *compiler);
   Compiler *_compiler;
   std::vector<std::string> translate_block();
   std::string _tag;
@@ -103,26 +113,27 @@ class CONDITION_BLOCK : public GENERIC_BLOCK {
   std::vector<std::string> translate_gre();
 };
 
-
 /**
  * COMMANDS
  */
 class COMMANDS_BLOCK;
 
-class IF_BLOCK{
+class IF_BLOCK {
  public:
-  IF_BLOCK(CONDITION_BLOCK* condition_block, COMMANDS_BLOCK* commands_block);
-  CONDITION_BLOCK* _condition_block;
-  COMMANDS_BLOCK* _commands_block;
+  IF_BLOCK(CONDITION_BLOCK *condition_block, COMMANDS_BLOCK *commands_block);
+  CONDITION_BLOCK *_condition_block;
+  COMMANDS_BLOCK *_commands_block;
   std::vector<std::string> translate_block();
 };
 
-class IF_ELSE_BLOCK{
+class IF_ELSE_BLOCK {
  public:
-  IF_ELSE_BLOCK(CONDITION_BLOCK* condition_block, COMMANDS_BLOCK* if_commands_block, COMMANDS_BLOCK* else_commands_block);
-  CONDITION_BLOCK* _condition_block;
-  COMMANDS_BLOCK* _if_commands_block;
-  COMMANDS_BLOCK* _else_commands_block;
+  IF_ELSE_BLOCK(CONDITION_BLOCK *condition_block,
+                COMMANDS_BLOCK *if_commands_block,
+                COMMANDS_BLOCK *else_commands_block);
+  CONDITION_BLOCK *_condition_block;
+  COMMANDS_BLOCK *_if_commands_block;
+  COMMANDS_BLOCK *_else_commands_block;
   std::vector<std::string> translate_block();
 };
 
@@ -134,19 +145,19 @@ class WRITE_BLOCK {
   VALUE_BLOCK *_output;
 };
 
-class WHILE_BLOCK{
+class WHILE_BLOCK {
  public:
-  WHILE_BLOCK(CONDITION_BLOCK* condition_block, COMMANDS_BLOCK* commands_block);
-  CONDITION_BLOCK* _condition_block;
-  COMMANDS_BLOCK* _commands_block;
+  WHILE_BLOCK(CONDITION_BLOCK *condition_block, COMMANDS_BLOCK *commands_block);
+  CONDITION_BLOCK *_condition_block;
+  COMMANDS_BLOCK *_commands_block;
   std::vector<std::string> translate_block();
 };
 
-class REPEAT_BLOCK{
+class REPEAT_BLOCK {
  public:
-  REPEAT_BLOCK(CONDITION_BLOCK* condition_block, COMMANDS_BLOCK* commands_block);
-  CONDITION_BLOCK* _condition_block;
-  COMMANDS_BLOCK* _commands_block;
+  REPEAT_BLOCK(CONDITION_BLOCK *condition_block, COMMANDS_BLOCK *commands_block);
+  CONDITION_BLOCK *_condition_block;
+  COMMANDS_BLOCK *_commands_block;
   std::vector<std::string> translate_block();
 };
 
@@ -175,10 +186,11 @@ class COMMAND_BLOCK {
   WRITE_BLOCK *_write_block;
   ASSIGN_BLOCK *_assign_block;
   READ_BLOCK *_read_block;
-  IF_BLOCK* _if_block;
-  IF_ELSE_BLOCK* _if_else_block;
-  WHILE_BLOCK* _while_block;
-  REPEAT_BLOCK* _repeat_block;
+  IF_BLOCK *_if_block;
+  IF_ELSE_BLOCK *_if_else_block;
+  WHILE_BLOCK *_while_block;
+  REPEAT_BLOCK *_repeat_block;
+  PROCEDURE_CALL_BLOCK *_procedure_call_block;
 };
 
 class COMMANDS_BLOCK : public GENERIC_BLOCK {
@@ -190,28 +202,55 @@ class COMMANDS_BLOCK : public GENERIC_BLOCK {
   std::vector<COMMAND_BLOCK *> _commands;
 };
 
-class PROC_DECLARATIONS : public GENERIC_BLOCK{
-  std::vector<variable> _var;
-};
-
 /**
  * PROCEDURE
  */
 class PROCEDURE_BLOCK : public GENERIC_BLOCK {
-  std::map<std::string,variable> _var_map;
+
+ public:
+  PROCEDURE_BLOCK();
+  PROCEDURE_BLOCK(uint16_t number_of_vars,
+                  std::vector<variable>* &variables,
+                  uint16_t return_adress,
+                  COMMANDS_BLOCK *commands_block,
+                  bool is_used, std::string proc_name) : _number_of_vars(number_of_vars),
+                                                         _variables(variables),
+                                                         _return_adress(return_adress),
+                                                         _commands_block(commands_block),
+                                                         _is_used(is_used),
+                                                         _proc_name(std::move(proc_name)) {}
+  std::vector<std::string> translate_block() override;
+  bool _is_used{};
+  std::vector<variable>* _variables{};
+  uint16_t _return_adress{};
+  uint64_t _no_uses{};
+ private:
+  std::string _proc_name{};
+  uint16_t _number_of_vars{};
+  COMMANDS_BLOCK *_commands_block{};
 };
 
 class PROCEDURE_CALL_BLOCK : public GENERIC_BLOCK {
  public:
+  std::vector<std::string> translate_block() override;
+  PROCEDURE_CALL_BLOCK(std::vector<variable> *variables,
+                       std::string proc_name,
+                       PROCEDURE_BLOCK *_procedure_block);
+  std::vector<variable> *_variables{};
+  std::string _proc_name{};
+  PROCEDURE_BLOCK *_procedure_block;
+  uint64_t _return_address{};
 
 };
+
+
 
 /**
  * MAIN BLOCK
  */
 class MAIN_BLOCK : GENERIC_BLOCK {
  public:
-  MAIN_BLOCK(COMMANDS_BLOCK *commands_block);
+  explicit MAIN_BLOCK(COMMANDS_BLOCK *commands_block);
   std::vector<std::string> translate_block() override;
  private:
   COMMANDS_BLOCK *_commands_block;

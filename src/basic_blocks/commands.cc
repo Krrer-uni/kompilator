@@ -29,9 +29,8 @@ COMMAND_BLOCK::COMMAND_BLOCK(basic_blocks_types::command_type command_type)
       _if_block(nullptr),
       _if_else_block(nullptr),
       _repeat_block(nullptr),
-      _while_block(nullptr) {
-
-}
+      _while_block(nullptr),
+      _procedure_call_block(nullptr) {}
 
 std::vector<std::string> COMMAND_BLOCK::translate_block() {
   std::vector<std::string> code;
@@ -50,6 +49,8 @@ std::vector<std::string> COMMAND_BLOCK::translate_block() {
     case basic_blocks_types::CMD_WHILE:code = _while_block->translate_block();
       break;
     case basic_blocks_types::CMD_REPEAT:code = _repeat_block->translate_block();
+      break;
+    case basic_blocks_types::CMD_PROC:code = _procedure_call_block->translate_block();
       break;
     default:std::cout << "jeszcze nie zaimplementowałeś tej komendy \n";
       break;
@@ -85,7 +86,16 @@ WRITE_BLOCK::WRITE_BLOCK(VALUE_BLOCK *output) {
 std::vector<std::string> WRITE_BLOCK::translate_block() {
   std::vector<std::string> code;
   if (_output->_value_type == basic_blocks_types::VAL_VAR) {
-    code.emplace_back("PUT" + _output->_var_block->get_memory_adress());
+    switch (_output->_var_block->_var_type) {
+      case pointer_var:
+        code.emplace_back("LOAD" + _output->_var_block->get_memory_adress());
+        code.emplace_back("PUT 0");
+        break;
+      case value_var:
+      case const_var:
+        code.emplace_back("PUT" + _output->_var_block->get_memory_adress());
+        break;
+    }
   } else {
     code.push_back("SET " + std::to_string(_output->_num_block->_number_literal));
     code.emplace_back("PUT 0");

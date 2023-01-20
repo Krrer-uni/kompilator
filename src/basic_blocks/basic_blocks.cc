@@ -64,4 +64,44 @@ std::vector<std::string> MAIN_BLOCK::translate_block() {
   return code;
 }
 
+std::vector<std::string> PROCEDURE_BLOCK::translate_block() {
+  std::vector<std::string> code;
+  code.push_back("&" + _proc_name);
+  auto commands_code = _commands_block->translate_block();
+  if(!commands_code.empty()) commands_code[0] +=  Compiler::compiler_log("[ " + _proc_name + " begin ]",4 );
+  code.insert(code.end(), commands_code.begin(), commands_code.end());
+  code.emplace_back("JUMPI " + std::to_string(_return_adress) + Compiler::compiler_log(" [ " + _proc_name + " end ]",4 ));
+  return code;
+}
+PROCEDURE_BLOCK::PROCEDURE_BLOCK() = default;
 
+PROCEDURE_CALL_BLOCK::PROCEDURE_CALL_BLOCK(std::vector<variable> *variables,
+                                           std::string proc_name, PROCEDURE_BLOCK *_procedure_block)
+    : _variables(variables), _procedure_block(_procedure_block) {
+  _proc_name = proc_name;
+}
+
+std::vector<std::string> PROCEDURE_CALL_BLOCK::translate_block() {
+  uint16_t times_used = _procedure_block->_no_uses++;
+  std::vector<std::string> code;
+  for (int i = 0; i < _variables->size(); i++) {
+    auto proc_var = (*(_procedure_block->_variables))[i];
+    auto var = (*_variables)[i];
+    switch (var.type) {
+      case value_var:code.push_back("SET " + std::to_string(var.memory_index) );
+        code.push_back("STORE " + std::to_string(proc_var.memory_index));
+        break;
+      case pointer_var:code.push_back("LOAD  " + std::to_string(var.memory_index));
+        code.push_back("STORE " + std::to_string(proc_var.memory_index));
+        break;
+      case const_var:code.push_back("SET " + std::to_string(var.memory_index));
+        code.push_back("STORE " + std::to_string(proc_var.memory_index));
+        break;
+    }
+  }
+  code.push_back("SET &" + _proc_name + std::to_string(times_used) + "#return");
+  code.push_back("STORE " + std::to_string(_procedure_block->_return_adress));
+  code.push_back("JUMP  &" + _proc_name);
+  code.push_back("&" + _proc_name + std::to_string(times_used) + "#return");
+  return code;
+}

@@ -27,7 +27,7 @@ Zmienne trzymane w mapie
 
 ``` c++
 struct Zmienna{
-    std::string name;
+    std::string _proc_name;
     var_type type;
     int scope_lvl;
 }
@@ -52,7 +52,7 @@ Zmienne deklarowane w headerze procedury będę przechowywane jako adresy. Opera
 
 Mamy kilka stanów programu:
 - program
-- procedure
+- Procedure
 - if
 - else
 - while
@@ -60,7 +60,7 @@ Mamy kilka stanów programu:
   
 # Pytania
 
-1. Czy dozwolona jest rekurencja nie wprost? Procedura A wywołuje procedure B która wywołuje A
+1. Czy dozwolona jest rekurencja nie wprost? Procedura A wywołuje Procedure B która wywołuje A
 
 
 # Pomysły na optymalizacje

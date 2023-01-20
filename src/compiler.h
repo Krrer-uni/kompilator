@@ -5,7 +5,6 @@
 #include "variables.h"
 #include "basic_blocks/basic_blocks.h"
 
-
 #ifndef KOMPILATOR_SRC_COMPILER_H_
 #define KOMPILATOR_SRC_COMPILER_H_
 
@@ -27,9 +26,10 @@ class Compiler {
 
   void handle_program();
   void handle_declaration(std::string name, variable_type type);
-  void handle_proc_head(std::vector<variable> *proc_declarations);
-  std::vector<variable> * handle_proc_declaration(std::string name, std::vector<variable> *declarations);
-  VALUE_BLOCK* handle_variable(const std::string& name);
+  void handle_procedure_definition(COMMANDS_BLOCK* commands_block, std::vector<variable>* proc_head_vars);
+  std::vector<variable>* handle_proc_head(std::string proc_name, std::vector<std::string> *proc_declarations);
+  std::vector<std::string> * handle_proc_declaration(std::string name, std::vector<std::string> *declarations);
+  VALUE_BLOCK* handle_variable(std::string &name);
   VALUE_BLOCK* handle_literal(literal value);
   COMMAND_BLOCK* handle_write(VALUE_BLOCK* output);
   COMMAND_BLOCK* handle_read(std::string input_name);
@@ -42,26 +42,26 @@ class Compiler {
   EXPRESSION_BLOCK* handle_expression(basic_blocks_types::expression_type expression_type, VALUE_BLOCK* lhs, VALUE_BLOCK* rhs);
   CONDITION_BLOCK* handle_condition(basic_blocks_types::condition_type condition_type, VALUE_BLOCK* lhs, VALUE_BLOCK* rhs);
   COMMAND_BLOCK* handle_assign(std::string identifier, EXPRESSION_BLOCK* expression_block);
-
+  COMMAND_BLOCK *handle_proc_use(std::string proc_name, std::vector<std::string> *proc_declarations);
 
   void handle_main(COMMANDS_BLOCK* commands_block);
   void translate_tags();
   static std::string compiler_log(std::string msg, int log_level);
   static void set_log_level(int log_level);
   static int COMPILER_DEBUG_MODE;
+
  private:
   bool _proc_declaration_flag = false;
-  std::string _curr_proc_name ;
+  std::string _curr_proc_prefix ;
   _IO_FILE* _output_file;
   std::map<std::string, variable> _variable_map;
   std::map<literal, variable> _const_map;
-  std::map<std::string,unsigned int> _tag_map;
+  std::map<std::string, uint32_t> _tag_map;
   std::map<std::string, PROCEDURE_BLOCK*> _proc_map;
-  unsigned int _memory_count;
-  unsigned int _tag_count;
+  uint32_t _memory_count;
+  uint32_t _tag_count;
   MAIN_BLOCK* _main = nullptr;
   std::vector<std::string> main_code;
-
 };
 
 #endif //KOMPILATOR_SRC_COMPILER_H_

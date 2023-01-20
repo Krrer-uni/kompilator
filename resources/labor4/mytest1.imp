@@ -1,27 +1,17 @@
+PROCEDURE dupa ( driven , developement) IS
+VAR a,b BEGIN
+    driven:=10;
+    WRITE driven;
+END
+
 PROGRAM IS
 VAR x, y, i, j
 BEGIN
 WRITE 6969;
-x := 10;
-y := 20;
-i := 0;
-j := 0;
-
-
-WHILE i <= 5 DO
-    REPEAT
-        WRITE j;
-        j := j + 1;
-    UNTIL j <= 5 ;
-    j := 0;
-    i := i + 1;
-ENDWHILE
-
-REPEAT
-    WRITE j;
-    j := j + 1;
-UNTIL j <= 6 ;
-j := 0;
-i := i + 1;
-
+x := 1;
+i := 2;
+WRITE x;
+dupa(x,i);
+WRITE x;
+WRITE i;
 END
