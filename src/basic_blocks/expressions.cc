@@ -101,7 +101,6 @@ std::vector<std::string> EXPRESSION_BLOCK::translate_block() {
           && _lhs->_num_block->_number_literal < _rhs->_num_block->_number_literal) {
         std::swap(_lhs, _rhs);
       }
-      auto mult_p = _mult_proc;
       code.push_back(_lhs->to_acc());
       code.emplace_back("STORE " + _mult_proc->lhs);
       code.push_back(_rhs->to_acc());
@@ -114,8 +113,28 @@ std::vector<std::string> EXPRESSION_BLOCK::translate_block() {
       break;
     }
 
-    case basic_blocks_types::EXP_DIV:break;
-    case basic_blocks_types::EXP_MOD:break;
+    case basic_blocks_types::EXP_DIV:
+      code.push_back(_lhs->to_acc());
+      code.emplace_back("STORE " + _div_proc->lhs);
+      code.push_back(_rhs->to_acc());
+      code.emplace_back("STORE " + _div_proc->rhs);
+      code.emplace_back("SET &$DIV" + _div_proc->get_no_uses() + "return");
+      code.emplace_back("STORE " + _div_proc->get_ret_adr());
+      code.emplace_back("JUMP &$DIV");
+      code.emplace_back("&$DIV" + _div_proc->get_no_uses()  + "return");
+      _div_proc->inc_no_uses();
+      break;
+    case basic_blocks_types::EXP_MOD:
+      code.push_back(_lhs->to_acc());
+      code.emplace_back("STORE " + _mod_proc->lhs);
+      code.push_back(_rhs->to_acc());
+      code.emplace_back("STORE " + _mod_proc->rhs);
+      code.emplace_back("SET &$MOD" + _mod_proc->get_no_uses() + "return");
+      code.emplace_back("STORE " + _mod_proc->get_ret_adr());
+      code.emplace_back("JUMP &$MOD");
+      code.emplace_back("&$MOD" + _mod_proc->get_no_uses()  + "return");
+      _mod_proc->inc_no_uses();
+      break;
   }
 
   return code;

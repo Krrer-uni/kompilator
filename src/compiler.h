@@ -65,8 +65,8 @@ class Compiler {
   MAIN_BLOCK* _main = nullptr;
   std::vector<std::string> main_code;
   MULT_PROC* _mult_proc;
-  div_proc *_div_proc;
-  mod_proc *_mod_proc;
+  DIV_PROC *_div_proc;
+  MOD_PROC *_mod_proc;
 };
 
 #endif //KOMPILATOR_SRC_COMPILER_H_

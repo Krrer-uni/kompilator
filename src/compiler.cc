@@ -210,9 +210,11 @@ EXPRESSION_BLOCK *Compiler::handle_expression(basic_blocks_types::expression_typ
       break;
     case basic_blocks_types::EXP_MOD:
       block->_mod_proc = _mod_proc;
+      _proc_map["&$MOD"]->_is_used = true;
       break;
     case basic_blocks_types::EXP_DIV:
       block->_div_proc = _div_proc;
+      _proc_map["&$DIV"]->_is_used = true;
       break;
     default:
       break;
@@ -393,8 +395,17 @@ void Compiler::init_operations() {
   std::string rhs_adr = std::to_string(_memory_count++);
   uint16_t ret_adr = _memory_count++;
   std::string acc_adr = std::to_string(_memory_count++);
+  std::string k_adr = std::to_string(_memory_count++);
   auto one_const = add_const_variable(1);
   auto* mul_proc = new MULT_PROC(lhs_adr, rhs_adr, acc_adr, std::to_string(one_const->memory_index), ret_adr);
   _mult_proc = mul_proc;
   _proc_map["&$MULT"] = mul_proc;
+  auto* div_proc = new DIV_PROC(lhs_adr,rhs_adr,acc_adr,k_adr, ret_adr);
+  _div_proc = div_proc;
+  _proc_map["&$DIV"] = div_proc;
+
+  auto* mod_proc = new MOD_PROC(lhs_adr,rhs_adr,acc_adr,k_adr, ret_adr);
+  _mod_proc = mod_proc;
+  _proc_map["&$MOD"] = mod_proc;
+
 }
