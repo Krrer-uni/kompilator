@@ -17,6 +17,9 @@
 #include <memory>
 #include "../variables.h"
 
+class MULT_PROC;
+class div_proc;
+class mod_proc;
 class Compiler;
 class PROCEDURE_CALL_BLOCK;
 namespace basic_blocks_types {
@@ -88,6 +91,9 @@ class EXPRESSION_BLOCK : public GENERIC_BLOCK {
   basic_blocks_types::expression_type _type;
   VALUE_BLOCK *_lhs;
   VALUE_BLOCK *_rhs;
+  MULT_PROC* _mult_proc;
+  div_proc* _div_proc;
+  mod_proc* _mod_proc;
 };
 
 /**

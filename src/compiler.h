@@ -4,6 +4,7 @@
 #include <map>
 #include "variables.h"
 #include "basic_blocks/basic_blocks.h"
+#include "mult_div.h"
 
 #ifndef KOMPILATOR_SRC_COMPILER_H_
 #define KOMPILATOR_SRC_COMPILER_H_
@@ -51,6 +52,7 @@ class Compiler {
   static int COMPILER_DEBUG_MODE;
 
  private:
+  void init_operations();
   bool _proc_declaration_flag = false;
   std::string _curr_proc_prefix ;
   _IO_FILE* _output_file;
@@ -62,6 +64,9 @@ class Compiler {
   uint32_t _tag_count;
   MAIN_BLOCK* _main = nullptr;
   std::vector<std::string> main_code;
+  MULT_PROC* _mult_proc;
+  div_proc *_div_proc;
+  mod_proc *_mod_proc;
 };
 
 #endif //KOMPILATOR_SRC_COMPILER_H_

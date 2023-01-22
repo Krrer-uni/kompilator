@@ -11,7 +11,14 @@ EXPRESSION_BLOCK::EXPRESSION_BLOCK(basic_blocks_types::expression_type type,
                                    VALUE_BLOCK *lhs,
                                    VALUE_BLOCK *rhs,
                                    Compiler *compiler) :
-    _type(type), _lhs(lhs), _rhs(rhs), _compiler(compiler) {
+    _type(type),
+    _lhs(lhs),
+    _rhs(rhs),
+    _compiler(compiler),
+    _div_proc(nullptr),
+    _mod_proc(nullptr),
+    _mult_proc(
+        nullptr) {
 }
 
 std::vector<std::string> EXPRESSION_BLOCK::translate_block() {
@@ -53,9 +60,9 @@ std::vector<std::string> EXPRESSION_BLOCK::translate_block() {
       code[0] = code[0] + " [ ADDITION ] ";
       break;
     case basic_blocks_types::EXP_VAL:
-      if(_lhs->_value_type == basic_blocks_types::VAL_LIT){
+      if (_lhs->_value_type == basic_blocks_types::VAL_LIT) {
         code.push_back("SET " + std::to_string(_lhs->_num_block->_number_literal));
-      } else{
+      } else {
         code.push_back("LOAD" + _lhs->_var_block->get_memory_adress());
       }
       break;
@@ -66,8 +73,8 @@ std::vector<std::string> EXPRESSION_BLOCK::translate_block() {
           code.push_back("SUB" + _rhs->_var_block->get_memory_adress());
         } else {  // lhs var rhs literal
           auto rhs_val = _rhs->_num_block->_number_literal;
-          variable* literal_var = _compiler->find_const(rhs_val);
-          if(literal_var == nullptr){
+          variable *literal_var = _compiler->find_const(rhs_val);
+          if (literal_var == nullptr) {
             literal_var = _compiler->add_const_variable(rhs_val);
           }
           code.push_back("LOAD" + _lhs->_var_block->get_memory_adress());
@@ -78,19 +85,40 @@ std::vector<std::string> EXPRESSION_BLOCK::translate_block() {
           code.push_back("SET " + std::to_string(_lhs->_num_block->_number_literal));
           code.push_back("SUB" + _rhs->_var_block->get_memory_adress());
         } else {   // both literals
-          if(_lhs->_num_block->_number_literal <= _rhs->_num_block->_number_literal){
+          if (_lhs->_num_block->_number_literal <= _rhs->_num_block->_number_literal) {
             code.emplace_back("SET 0");
-          } else{
-            code.emplace_back("SET " + std::to_string(_lhs->_num_block->_number_literal - _rhs->_num_block->_number_literal));
+          } else {
+            code.emplace_back("SET " + std::to_string(
+                _lhs->_num_block->_number_literal - _rhs->_num_block->_number_literal));
           }
         }
       }
-      code[0] = code[0] + Compiler::compiler_log(" [ SUBTRACTION ] ",2);
+      code[0] = code[0] + Compiler::compiler_log(" [ SUBTRACTION ] ", 2);
       break;
-    case basic_blocks_types::EXP_MUL:break;
+    case basic_blocks_types::EXP_MUL: {
+      if (_lhs->_value_type == basic_blocks_types::VAL_LIT
+          && _rhs->_value_type == basic_blocks_types::VAL_LIT
+          && _lhs->_num_block->_number_literal < _rhs->_num_block->_number_literal) {
+        std::swap(_lhs, _rhs);
+      }
+      auto mult_p = _mult_proc;
+      code.push_back(_lhs->to_acc());
+      code.emplace_back("STORE " + _mult_proc->lhs);
+      code.push_back(_rhs->to_acc());
+      code.emplace_back("STORE " + _mult_proc->rhs);
+      code.emplace_back("SET &$MULT" + _mult_proc->get_no_uses() + "return");
+      code.emplace_back("STORE " + _mult_proc->get_ret_adr());
+      code.emplace_back("JUMP &$MULT");
+      code.emplace_back("&$MULT" + _mult_proc->get_no_uses()  + "return");
+      _mult_proc->inc_no_uses();
+      break;
+    }
+
     case basic_blocks_types::EXP_DIV:break;
     case basic_blocks_types::EXP_MOD:break;
   }
 
   return code;
 }
+
+

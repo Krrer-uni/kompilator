@@ -13,6 +13,7 @@ Compiler::Compiler() {
   _tag_count = 1;
   _output_file = nullptr;
   _curr_proc_prefix = "";
+  init_operations();
 }
 
 std::string Compiler::compiler_log(std::string msg, int log_level) {
@@ -28,7 +29,10 @@ void Compiler::handle_program() {
   for (auto proc : _proc_map) {
     if (proc.second->_is_used) {
       auto proc_code = proc.second->translate_block();
+//      proc_code[0] += compiler_log(" [ start of " + proc.first.substr(1) + "] ",5);
+//      proc_code[proc_code.size()-1] += compiler_log(" [ end of " + proc.first.substr(1) + "] ",5);
       main_code.insert(main_code.end(), proc_code.begin(), proc_code.end());
+
     }
   }
   std::vector<std::string> allocate_const_code;
@@ -155,7 +159,7 @@ variable *Compiler::add_const_variable(const unsigned long long int value) {
     _const_map[value] = *new_var;
     _memory_count++;
   } else {
-    std::cout << "Redeclaration of variable \n";
+    std::cout << "Redeclaration of const " + std::to_string(value) + "\n";
     new_var = nullptr;
   }
   return new_var;
@@ -199,6 +203,20 @@ EXPRESSION_BLOCK *Compiler::handle_expression(basic_blocks_types::expression_typ
                                               VALUE_BLOCK *lhs,
                                               VALUE_BLOCK *rhs) {
   auto block = new EXPRESSION_BLOCK(expression_type, lhs, rhs, this);
+  switch (expression_type) {
+    case basic_blocks_types::EXP_MUL:
+    block->_mult_proc = _mult_proc;
+    _proc_map["&$MULT"]->_is_used = true;
+      break;
+    case basic_blocks_types::EXP_MOD:
+      block->_mod_proc = _mod_proc;
+      break;
+    case basic_blocks_types::EXP_DIV:
+      block->_div_proc = _div_proc;
+      break;
+    default:
+      break;
+  }
   if (COMPILER_DEBUG_MODE > 0) {
     std::cout << "added EXPRESSION block \n";
   }
@@ -369,4 +387,14 @@ COMMAND_BLOCK *Compiler::handle_proc_use(std::string proc_name,
 
   std::cout << compiler_log("added PROCEDURE CALL block", 1) + "\n";
   return command_block;
+}
+void Compiler::init_operations() {
+  std::string lhs_adr = std::to_string(_memory_count++);
+  std::string rhs_adr = std::to_string(_memory_count++);
+  uint16_t ret_adr = _memory_count++;
+  std::string acc_adr = std::to_string(_memory_count++);
+  auto one_const = add_const_variable(1);
+  auto* mul_proc = new MULT_PROC(lhs_adr, rhs_adr, acc_adr, std::to_string(one_const->memory_index), ret_adr);
+  _mult_proc = mul_proc;
+  _proc_map["&$MULT"] = mul_proc;
 }

@@ -1,17 +1,25 @@
+[
 PROCEDURE dupa ( driven , developement) IS
-VAR a,b BEGIN
-    driven:=10;
-    WRITE driven;
+VAR a BEGIN
+    a := driven*developement;
+    WRITE a;
 END
-
+]
 PROGRAM IS
 VAR x, y, i, j
 BEGIN
-WRITE 6969;
 x := 1;
 i := 2;
 WRITE x;
-dupa(x,i);
+[dupa(x,i);]
+x := x*5;
 WRITE x;
-WRITE i;
+x := 2*5;
+WRITE x;
+x := 5*2;
+WRITE x;
+x := x*i;
+WRITE x;
+x := 0*x;
+WRITE x;
 END
