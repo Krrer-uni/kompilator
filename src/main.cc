@@ -12,7 +12,7 @@ int main (int argc, char const* argv[]){
     return 1;
   }
   extern Compiler* compiler;
-  Compiler::set_log_level(69);
+  Compiler::set_log_level(0);
   yyin = fopen(argv[1], "r");
   auto output_file = fopen(argv[2],"w");
   compiler->set_output(output_file);

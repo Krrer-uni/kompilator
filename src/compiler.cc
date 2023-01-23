@@ -62,7 +62,13 @@ void Compiler::add_variable(const std::string &name, variable_type type) {
     _variable_map[name] = variable{name, type, _memory_count};
     _memory_count++;
   } else {
-    std::cout << "Redeclaration of variable " + name + "\n";
+    if(_proc_declaration_flag){
+      auto tag_end = name.find('$');
+      auto stripped_var_name  = name.substr(tag_end+1);
+      std::cout << "Redeclaration of variable " + stripped_var_name + " in procedure " + _curr_proc_prefix.substr(0,_curr_proc_prefix.size()-2) + "\n";
+    }else{
+      std::cout << "Redeclaration of variable " + name + "\n";
+    }
   }
 }
 
@@ -81,7 +87,13 @@ VALUE_BLOCK *Compiler::handle_variable(std::string &name) {
     name = _curr_proc_prefix + name;
   }
   if (_variable_map.find(name) == _variable_map.end()) {
-    std::cout << "variable " + name + " was not declared in the scope \n";
+    if(_proc_declaration_flag){
+      auto tag_end = name.find('$');
+      auto stripped_var_name  = name.substr(tag_end+1);
+      std::cout << "variable " + stripped_var_name + " was not declared in procedure " + _curr_proc_prefix.substr(0,_curr_proc_prefix.size()-2) + "\n";
+    }else{
+      std::cout << "variable " + name + " was not declared in the scope \n";
+    }
     return nullptr;
   }
   auto var = _variable_map[name];
@@ -335,11 +347,15 @@ std::vector<variable> *Compiler::handle_proc_head(std::string proc_name,
   for (auto &var_name : *proc_declarations) {
     var_name = var_prefix + var_name;
     if (_variable_map.find(var_name) != _variable_map.end()) {
-      std::cout << "Redeclaration of variable " + var_name + " in procedure\n";
+      auto tag_end = var_name.find('$');
+      auto stripped_var_name  = var_name.substr(tag_end+1);
+      std::cout << "Redeclaration of variable " + stripped_var_name + " in procedure " + proc_name + "\n";
+      declared_vars->push_back(_variable_map[var_name]);
+    }else{
+      auto new_var = variable(var_name, pointer_var, _memory_count++);
+      _variable_map[var_name] = new_var;
+      declared_vars->push_back(new_var);
     }
-    auto new_var = variable(var_name, pointer_var, _memory_count++);
-    _variable_map[var_name] = new_var;
-    declared_vars->push_back(new_var);
   }
   _curr_proc_prefix = var_prefix;
   _proc_declaration_flag = true;

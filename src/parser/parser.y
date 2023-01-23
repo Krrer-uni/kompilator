@@ -102,7 +102,7 @@ program_all: procedures main { compiler->handle_program();}
 
 procedures: procedures PROCEDURE proc_head IS VAR declarations BEGIN_ commands END { compiler->handle_procedure_definition($8,$3);}
 | procedures PROCEDURE proc_head IS BEGIN_ commands END {  compiler->handle_procedure_definition($6,$3); }
-| {std::cout << "end of proc declarations \n";}
+|
 ;
 
 main: PROGRAM IS VAR declarations BEGIN_ commands END { compiler->handle_main($6);}
