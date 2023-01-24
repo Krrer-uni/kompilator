@@ -19,6 +19,7 @@ class variable {
   variable_type type;
   uint64_t memory_index;
   int usage_number = 0;
+  bool is_set;
 };
 
 #endif //KOMPILATOR_SRC_VARIABLES_H_

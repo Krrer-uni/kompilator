@@ -14,6 +14,9 @@ int main (int argc, char const* argv[]){
   extern Compiler* compiler;
   Compiler::set_log_level(0);
   yyin = fopen(argv[1], "r");
+  if(yyin == NULL){
+    std::cout << "FATAL ERROR: file with given name does not exist: " + std::string(argv[1]) + "\n";
+  }
   auto output_file = fopen(argv[2],"w");
   compiler->set_output(output_file);
   yyset_debug(1);

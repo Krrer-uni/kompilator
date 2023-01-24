@@ -25,6 +25,10 @@ std::string Compiler::compiler_log(std::string msg, int log_level) {
 }
 
 void Compiler::handle_program() {
+  if(FATAL_ERROR_FLAG){
+    std::cout << "Fatal error encountered, compilation was not possible\n";
+    return;
+  }
   main_code = _main->translate_block();
   for (auto proc : _proc_map) {
     if (proc.second->_is_used) {
@@ -65,9 +69,9 @@ void Compiler::add_variable(const std::string &name, variable_type type) {
     if(_proc_declaration_flag){
       auto tag_end = name.find('$');
       auto stripped_var_name  = name.substr(tag_end+1);
-      std::cout << "Redeclaration of variable " + stripped_var_name + " in procedure " + _curr_proc_prefix.substr(0,_curr_proc_prefix.size()-2) + "\n";
+      std::cout << "WARNING: Redeclaration of variable " + stripped_var_name + " in procedure " + _curr_proc_prefix.substr(0,_curr_proc_prefix.size()-2) + "\n";
     }else{
-      std::cout << "Redeclaration of variable " + name + "\n";
+      std::cout << "WARNING: Redeclaration of variable " + name + "\n";
     }
   }
 }
@@ -90,13 +94,25 @@ VALUE_BLOCK *Compiler::handle_variable(std::string &name) {
     if(_proc_declaration_flag){
       auto tag_end = name.find('$');
       auto stripped_var_name  = name.substr(tag_end+1);
-      std::cout << "variable " + stripped_var_name + " was not declared in procedure " + _curr_proc_prefix.substr(0,_curr_proc_prefix.size()-2) + "\n";
+      std::cout << "FATAL ERROR: variable " + stripped_var_name + " was not declared in procedure " + _curr_proc_prefix.substr(0,_curr_proc_prefix.size()-2) + "\n";
     }else{
-      std::cout << "variable " + name + " was not declared in the scope \n";
+      std::cout << "FATAL ERROR: variable " + name + " was not declared in the scope \n";
     }
+    FATAL_ERROR_FLAG = true;
     return nullptr;
   }
+  if(!_variable_map[name].is_set && _variable_map[name].type == value_var){
+    if(_proc_declaration_flag){
+      auto tag_end = name.find('$');
+      auto stripped_var_name  = name.substr(tag_end+1);
+      std::cout << "WARNING: use of possibly uninitialized variable " + stripped_var_name + " in procedure " + _curr_proc_prefix.substr(0,_curr_proc_prefix.size()-2) + "\n";
+    }else{
+      std::cout << "WARNING: use of possibly uninitialized variable " + name + " \n";
+    }
+
+  }
   auto var = _variable_map[name];
+  _variable_map[name].usage_number++;
   auto var_block = new VAR_BLOCK(name, var.type, var.memory_index);
   auto value_block = new VALUE_BLOCK(basic_blocks_types::VAL_VAR);
   value_block->_var_block = var_block;
@@ -147,10 +163,18 @@ COMMAND_BLOCK *Compiler::handle_read(std::string input_name) {
     input_name = _curr_proc_prefix + input_name;
   }
   if (_variable_map.find(input_name) == _variable_map.end()) {
-    std::cout << "variable " + input_name + " was not declared in the scope \n";
+    if(_proc_declaration_flag){
+      auto tag_end = input_name.find('$');
+      auto stripped_var_name  = input_name.substr(tag_end+1);
+      std::cout << "FATAL ERROR: variable " + stripped_var_name + " was not declared in procedure " + _curr_proc_prefix.substr(0,_curr_proc_prefix.size()-2) + "\n";
+    }else{
+      std::cout << "FATAL ERROR: variable " + input_name + " was not declared in the scope \n";
+    }
+    FATAL_ERROR_FLAG = true;
     return nullptr;
   }
   auto var = _variable_map[input_name];
+  _variable_map[input_name].is_set = true;
   auto var_block = new VAR_BLOCK(input_name, var.type, var.memory_index);
   auto value_block = new VALUE_BLOCK(basic_blocks_types::VAL_VAR);
   value_block->_var_block = var_block;
@@ -171,7 +195,7 @@ variable *Compiler::add_const_variable(const unsigned long long int value) {
     _const_map[value] = *new_var;
     _memory_count++;
   } else {
-    std::cout << "Redeclaration of const " + std::to_string(value) + "\n";
+    std::cout << "INTERNAL WARRNING: Redeclaration of const " + std::to_string(value) + "\n";
     new_var = nullptr;
   }
   return new_var;
@@ -241,10 +265,18 @@ COMMAND_BLOCK *Compiler::handle_assign(std::string identifier, EXPRESSION_BLOCK 
     identifier = _curr_proc_prefix + identifier;
   }
   if (_variable_map.find(identifier) == _variable_map.end()) {
-    std::cout << "variable " + identifier + " was not declared in the scope \n";
+    if(_proc_declaration_flag){
+      auto tag_end = identifier.find('$');
+      auto stripped_var_name  = identifier.substr(tag_end+1);
+      std::cout << "FATAL ERROR: variable " + stripped_var_name + " was not declared in procedure " + _curr_proc_prefix.substr(0,_curr_proc_prefix.size()-2) + "\n";
+    }else{
+      std::cout << "FATAL ERROR: variable " + identifier + " was not declared in the scope \n";
+    }
+    FATAL_ERROR_FLAG = true;
     return nullptr;
   }
   auto var = _variable_map[identifier];
+  _variable_map[identifier].is_set = true;
   auto var_block = new VAR_BLOCK(identifier, var.type, var.memory_index);
   auto cmd_block = new COMMAND_BLOCK(basic_blocks_types::CMD_ASIGN);
   cmd_block->_assign_block = new ASSIGN_BLOCK(var_block, expression_block);
@@ -339,7 +371,7 @@ std::vector<std::string> *Compiler::handle_proc_declaration(std::string name,
   declarations->push_back(name);
   return declarations;
 }
-std::vector<variable> *Compiler::handle_proc_head(std::string proc_name,
+std::vector<variable> *Compiler::handle_proc_head(const std::string& proc_name,
                                                   std::vector<std::string> *proc_declarations) {
   auto *declared_vars = new std::vector<variable>;
   auto number_of_variables = proc_declarations->size();
@@ -349,7 +381,7 @@ std::vector<variable> *Compiler::handle_proc_head(std::string proc_name,
     if (_variable_map.find(var_name) != _variable_map.end()) {
       auto tag_end = var_name.find('$');
       auto stripped_var_name  = var_name.substr(tag_end+1);
-      std::cout << "Redeclaration of variable " + stripped_var_name + " in procedure " + proc_name + "\n";
+      std::cout << "WARRNING: Redeclaration of variable " + stripped_var_name + " in procedure " + proc_name + "\n";
       declared_vars->push_back(_variable_map[var_name]);
     }else{
       auto new_var = variable(var_name, pointer_var, _memory_count++);
@@ -379,8 +411,9 @@ COMMAND_BLOCK *Compiler::handle_proc_use(std::string proc_name,
   std::string proc_id = proc_name + std::to_string(proc_declarations->size()) + "$";
   PROCEDURE_BLOCK* procedure;
   if (_proc_map.find(proc_id) == _proc_map.end()) {
-    std::cout << "INCORRECT PROCEDURE CALL: there is no procedure " + proc_name + " with "
-        + std::to_string(proc_declarations->size()) + " arguments\n";
+    std::cout << "FATAL ERROR: procedure " + proc_name + " with "
+        + std::to_string(proc_declarations->size()) + " arguments has not been declared\n";
+    FATAL_ERROR_FLAG = true;
     return nullptr;
   } else{
     procedure = _proc_map[proc_id];
@@ -392,8 +425,9 @@ COMMAND_BLOCK *Compiler::handle_proc_use(std::string proc_name,
       var_name = _curr_proc_prefix + var_name;
     }
     if(_variable_map.find(var_name) == _variable_map.end()){
-      std::cout << "In function call " + proc_name + " with "
+      std::cout << "FATAL ERROR: In function call " + proc_name + " with "
           + std::to_string(proc_declarations->size()) + "arguments. Use of undeclared variable " + var_name + ".\n";
+      FATAL_ERROR_FLAG = true;
       return nullptr;
     } else{
       call_variables->push_back(_variable_map[var_name]);

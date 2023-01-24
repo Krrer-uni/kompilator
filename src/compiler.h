@@ -28,7 +28,7 @@ class Compiler {
   void handle_program();
   void handle_declaration(std::string name, variable_type type);
   void handle_procedure_definition(COMMANDS_BLOCK* commands_block, std::vector<variable>* proc_head_vars);
-  std::vector<variable>* handle_proc_head(std::string proc_name, std::vector<std::string> *proc_declarations);
+  std::vector<variable>* handle_proc_head(const std::string& proc_name, std::vector<std::string> *proc_declarations);
   std::vector<std::string> * handle_proc_declaration(std::string name, std::vector<std::string> *declarations);
   VALUE_BLOCK* handle_variable(std::string &name);
   VALUE_BLOCK* handle_literal(literal value);
@@ -52,6 +52,7 @@ class Compiler {
   static int COMPILER_DEBUG_MODE;
 
  private:
+  bool FATAL_ERROR_FLAG = false;
   void init_operations();
   bool _proc_declaration_flag = false;
   std::string _curr_proc_prefix ;
