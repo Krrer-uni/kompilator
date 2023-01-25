@@ -25,9 +25,9 @@ END
 PROGRAM IS
 VAR a,b,c,d
 BEGIN
-   READ a;
-   READ b;
-   READ c;
+   a:=1234567890;
+   b:=1234567890987654321;
+   c:=987654321;
    power(a,b,c,d);
    WRITE d;
 END

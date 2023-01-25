@@ -35,8 +35,8 @@ END
 PROGRAM IS
 VAR a,b
 BEGIN
-  READ a;
-  READ b;
+  a:=0;
+  b:=1;
   pd(a,b);
   WRITE a;
   WRITE b;

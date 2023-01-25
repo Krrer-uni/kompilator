@@ -5,7 +5,7 @@
 PROGRAM IS
 VAR a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z
 BEGIN
-  READ a;
+  a:=1;
   b := a;
   c := b + a;
   d := c + b;

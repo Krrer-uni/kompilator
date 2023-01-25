@@ -11,7 +11,7 @@ int yylex();
 %%
 <INITIAL>{
 [ \t]+ 	;
-[0-9]+  	        {yylval.num = atoi(yytext); return num;}
+[0-9]+  	        {yylval.num = std::stoull(yytext); return num;}
 "PROCEDURE"         {return PROCEDURE;}
 "IS"                {return IS;}
 "VAR"               {return VAR;}

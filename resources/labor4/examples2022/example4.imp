@@ -34,8 +34,8 @@ END
 PROGRAM IS
 VAR n,k,w
 BEGIN
-    READ n;
-    READ k;
+    n:=20;
+    k:=9;
     bc(n,k,w);
     WRITE w;
 END
