@@ -9,7 +9,7 @@ int Compiler::COMPILER_DEBUG_MODE = 100;
 
 Compiler::Compiler() {
   _variable_map = std::map<std::string, variable>();
-  _memory_count = 1;
+  _memory_count = 2;
   _tag_count = 1;
   _output_file = nullptr;
   _curr_proc_prefix = "";

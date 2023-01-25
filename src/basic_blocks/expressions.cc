@@ -40,6 +40,10 @@ std::vector<std::string> EXPRESSION_BLOCK::translate_block() {
         } else {   // both literals
           auto lhs_val = _lhs->_num_block->_number_literal;
           auto rhs_val = _rhs->_num_block->_number_literal;
+          if(lhs_val+rhs_val >= lhs_val){
+            code.push_back("SET " + std::to_string(lhs_val+rhs_val)) ;
+            break;
+          }
           if (_compiler->find_const(rhs_val) == nullptr) {
             if (_compiler->find_const(lhs_val) == nullptr) {
               auto new_const = _compiler->add_const_variable(rhs_val);
@@ -125,6 +129,15 @@ std::vector<std::string> EXPRESSION_BLOCK::translate_block() {
       _div_proc->inc_no_uses();
       break;
     case basic_blocks_types::EXP_MOD:
+      if (_rhs->_value_type == basic_blocks_types::VAL_LIT && _rhs->_num_block->_number_literal ==2){
+        code.push_back(_lhs->to_acc());
+        code.push_back("HALF");
+        code.push_back("ADD 0");
+        code.push_back("STORE 1");
+        code.push_back(_lhs->to_acc());
+        code.push_back("SUB 1");
+        break;
+      }
       code.push_back(_lhs->to_acc());
       code.emplace_back("STORE " + _mod_proc->lhs);
       code.push_back(_rhs->to_acc());
