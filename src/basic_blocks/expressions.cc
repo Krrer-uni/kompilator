@@ -40,8 +40,8 @@ std::vector<std::string> EXPRESSION_BLOCK::translate_block() {
         } else {   // both literals
           auto lhs_val = _lhs->_num_block->_number_literal;
           auto rhs_val = _rhs->_num_block->_number_literal;
-          if(lhs_val+rhs_val >= lhs_val){
-            code.push_back("SET " + std::to_string(lhs_val+rhs_val)) ;
+          if (lhs_val + rhs_val >= lhs_val) {
+            code.push_back("SET " + std::to_string(lhs_val + rhs_val));
             break;
           }
           if (_compiler->find_const(rhs_val) == nullptr) {
@@ -105,31 +105,48 @@ std::vector<std::string> EXPRESSION_BLOCK::translate_block() {
           && _lhs->_num_block->_number_literal < _rhs->_num_block->_number_literal) {
         std::swap(_lhs, _rhs);
       }
+      if (_lhs->_value_type == basic_blocks_types::VAL_LIT
+          && _rhs->_value_type == basic_blocks_types::VAL_VAR) {
+        std::swap(_lhs,_rhs);
+      }
       code.push_back(_lhs->to_acc());
+      if(_rhs->_value_type == basic_blocks_types::VAL_LIT && _rhs->_num_block->_number_literal == 2){
+        code.emplace_back("ADD 0");
+        break;
+      }
       code.emplace_back("STORE " + _mult_proc->lhs);
       code.push_back(_rhs->to_acc());
       code.emplace_back("STORE " + _mult_proc->rhs);
       code.emplace_back("SET &$MULT" + _mult_proc->get_no_uses() + "return");
       code.emplace_back("STORE " + _mult_proc->get_ret_adr());
       code.emplace_back("JUMP &$MULT");
-      code.emplace_back("&$MULT" + _mult_proc->get_no_uses()  + "return");
+      code.emplace_back("&$MULT" + _mult_proc->get_no_uses() + "return");
       _mult_proc->inc_no_uses();
       break;
     }
 
-    case basic_blocks_types::EXP_DIV:
-      code.push_back(_lhs->to_acc());
+    case basic_blocks_types::EXP_DIV:code.push_back(_lhs->to_acc());
+      if (_rhs->_value_type == basic_blocks_types::VAL_LIT) {
+        while (_rhs->_num_block->_number_literal % 2 == 0) {
+          _rhs->_num_block->_number_literal /= 2;
+          code.emplace_back("HALF ");
+        }
+        if (_rhs->_num_block->_number_literal == 1) {
+          break;
+        }
+      }
       code.emplace_back("STORE " + _div_proc->lhs);
       code.push_back(_rhs->to_acc());
       code.emplace_back("STORE " + _div_proc->rhs);
       code.emplace_back("SET &$DIV" + _div_proc->get_no_uses() + "return");
       code.emplace_back("STORE " + _div_proc->get_ret_adr());
       code.emplace_back("JUMP &$DIV");
-      code.emplace_back("&$DIV" + _div_proc->get_no_uses()  + "return");
+      code.emplace_back("&$DIV" + _div_proc->get_no_uses() + "return");
       _div_proc->inc_no_uses();
       break;
     case basic_blocks_types::EXP_MOD:
-      if (_rhs->_value_type == basic_blocks_types::VAL_LIT && _rhs->_num_block->_number_literal ==2){
+      if (_rhs->_value_type == basic_blocks_types::VAL_LIT
+          && _rhs->_num_block->_number_literal == 2) {
         code.push_back(_lhs->to_acc());
         code.push_back("HALF");
         code.push_back("ADD 0");
@@ -145,7 +162,7 @@ std::vector<std::string> EXPRESSION_BLOCK::translate_block() {
       code.emplace_back("SET &$MOD" + _mod_proc->get_no_uses() + "return");
       code.emplace_back("STORE " + _mod_proc->get_ret_adr());
       code.emplace_back("JUMP &$MOD");
-      code.emplace_back("&$MOD" + _mod_proc->get_no_uses()  + "return");
+      code.emplace_back("&$MOD" + _mod_proc->get_no_uses() + "return");
       _mod_proc->inc_no_uses();
       break;
   }
