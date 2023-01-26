@@ -9,8 +9,19 @@
 std::vector<std::string> MULT_PROC::translate_block() {
   std::vector<std::string> code;
   code.emplace_back("&$MULT");
-  code.emplace_back("LOAD " + acc);
-  code.emplace_back("SUB 0");
+  code.emplace_back("LOAD " + lhs);
+  code.emplace_back("SUB" + rhs);
+
+  code.emplace_back("JPOS &$MULT_COND");
+  code.emplace_back("LOAD" + rhs);
+  code.emplace_back("STORE" + acc);
+  code.emplace_back("LOAD" + lhs);
+  code.emplace_back("STORE" + rhs);
+  code.emplace_back("LOAD" + acc);
+  code.emplace_back("STORE" + lhs);
+  code.emplace_back("&$MULT_COND");
+
+  code.emplace_back("SET 0");
   code.emplace_back("STORE " + acc);
   code.emplace_back("LOAD " + rhs);
   code.emplace_back("&$MULT_START");
@@ -60,7 +71,7 @@ void MULT_PROC::inc_no_uses() {
 std::vector<std::string> DIV_PROC::translate_block() {
   std::vector<std::string> code;
   code.emplace_back("&$DIV");
-  code.emplace_back("LOAD " + acc);
+  code.emplace_back("SET " + acc);
   code.emplace_back("SUB 0");
   code.emplace_back("STORE " + acc);
   code.emplace_back("LOAD " + rhs);
